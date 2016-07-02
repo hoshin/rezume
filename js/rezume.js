@@ -15,7 +15,7 @@ class Rezume {
         this.renderAcademic(document, resumeData);
         this.renderRelevantAssignments(document, resumeData, resumeOptions);
         if (resumeData.otherAssignments && resumeOptions.showOtherAssignments) {
-            this.renderOtherAssignments(document, resumeData);
+            this.renderOtherAssignments(document, resumeData, resumeOptions);
         }
         this.renderAnnex(document, resumeData);
     }
@@ -55,47 +55,14 @@ class Rezume {
         }
     }
 
-    renderOtherAssignments(document, resumeData) {
+    renderOtherAssignments(document, resumeData, resumeOptions) {
         document.getElementById('otherAssignmentsTitle').innerText = resumeData.otherAssignments.title;
         document.getElementById('otherAssignmentsComment').innerText = resumeData.otherAssignments.comment;
         var otherAssignmentsListContainer = document.getElementById('otherAssignmentsList');
         otherAssignmentsListContainer.setAttribute('style', 'display:block');
         document.getElementById('otherAssignments').setAttribute('style', 'display:block');
-        resumeData.otherAssignments.list.forEach(function (assignment) {
-            var assignmentContainer = document.createElement('div');
-            assignmentContainer.setAttribute('class', 'mission');
-
-            var assignmentLogoTime = document.createElement('div');
-            assignmentLogoTime.setAttribute('class', 'mission-logo-time');
-            var assignmentImage = document.createElement('img');
-            assignmentImage.setAttribute('src', document.getElementById(assignment.logo).getAttribute('src'));
-            assignmentImage.setAttribute('alt', assignment.logoAlt);
-            var assignmentDuration = document.createElement('p');
-            assignmentDuration.innerText = assignment.duration;
-
-            assignmentLogoTime.appendChild(assignmentImage);
-            assignmentLogoTime.appendChild(assignmentDuration);
-
-            var assignmentDescription = document.createElement('div');
-            assignmentDescription.setAttribute('class', 'mission-desc');
-
-            var assignmentDescriptionTitle = document.createElement('h2');
-            assignmentDescriptionTitle.innerText = assignment.title;
-
-            var assignmentDescriptionParagraph = document.createElement('p');
-            assignmentDescriptionParagraph.innerHTML = assignment.shortDescription;
-            var assignmentDescriptionKeywords = document.createElement('p');
-            assignmentDescriptionKeywords.setAttribute('class', 'mission-keywords');
-            assignmentDescriptionKeywords.innerText = assignment.keywords;
-
-            assignmentDescription.appendChild(assignmentDescriptionTitle);
-            assignmentDescription.appendChild(assignmentDescriptionParagraph);
-            assignmentDescription.appendChild(assignmentDescriptionKeywords);
-
-            assignmentContainer.appendChild(assignmentLogoTime);
-            assignmentContainer.appendChild(assignmentDescription);
-
-            otherAssignmentsListContainer.appendChild(assignmentContainer);
+        resumeData.otherAssignments.list.forEach( (assignment) => {
+            this.appendAssignmentToList(document, assignment, resumeOptions.showKeywords, otherAssignmentsListContainer);
         });
     }
 
@@ -104,44 +71,48 @@ class Rezume {
         document.getElementById('relevantAssignmentsComment').innerText = resumeData.relevantAssignments.comment;
 
         var relevantAssignmentsListContainer = document.getElementById('relevantAssignmentsList');
-        resumeData.relevantAssignments.list.forEach(function (assignment) {
-            var assignmentContainer = document.createElement('div');
-            assignmentContainer.setAttribute('class', 'mission');
-
-            var assignmentLogoTime = document.createElement('div');
-            assignmentLogoTime.setAttribute('class', 'mission-logo-time');
-            var assignmentImage = document.createElement('img');
-            assignmentImage.setAttribute('src', document.getElementById(assignment.logo).getAttribute('src'));
-            assignmentImage.setAttribute('alt', assignment.logoAlt);
-            var assignmentDuration = document.createElement('p');
-            assignmentDuration.innerText = assignment.duration;
-
-            assignmentLogoTime.appendChild(assignmentImage);
-            assignmentLogoTime.appendChild(assignmentDuration);
-
-            var assignmentDescription = document.createElement('div');
-            assignmentDescription.setAttribute('class', 'mission-desc');
-
-            var assignmentDescriptionTitle = document.createElement('h2');
-            assignmentDescriptionTitle.innerText = assignment.title;
-
-            var assignmentDescriptionParagraph = document.createElement('p');
-            assignmentDescriptionParagraph.innerHTML = assignment.shortDescription;
-            var assignmentDescriptionKeywords = document.createElement('p');
-            assignmentDescriptionKeywords.setAttribute('class', 'mission-keywords');
-            assignmentDescriptionKeywords.innerText = assignment.keywords;
-
-            assignmentDescription.appendChild(assignmentDescriptionTitle);
-            assignmentDescription.appendChild(assignmentDescriptionParagraph);
-            if (resumeOptions.showKeywords) {
-                assignmentDescription.appendChild(assignmentDescriptionKeywords);
-            }
-
-            assignmentContainer.appendChild(assignmentLogoTime);
-            assignmentContainer.appendChild(assignmentDescription);
-
-            relevantAssignmentsListContainer.appendChild(assignmentContainer);
+        resumeData.relevantAssignments.list.forEach( (assignment) => {
+            this.appendAssignmentToList(document, assignment, resumeOptions.showKeywords, relevantAssignmentsListContainer);
         });
+    }
+
+    appendAssignmentToList(document, assignment, showKeywords, relevantAssignmentsListContainer) {
+        var assignmentContainer = document.createElement('div');
+        assignmentContainer.setAttribute('class', 'mission');
+
+        var assignmentLogoTime = document.createElement('div');
+        assignmentLogoTime.setAttribute('class', 'mission-logo-time');
+        var assignmentImage = document.createElement('img');
+        assignmentImage.setAttribute('src', document.getElementById(assignment.logo).getAttribute('src'));
+        assignmentImage.setAttribute('alt', assignment.logoAlt);
+        var assignmentDuration = document.createElement('p');
+        assignmentDuration.innerText = assignment.duration;
+
+        assignmentLogoTime.appendChild(assignmentImage);
+        assignmentLogoTime.appendChild(assignmentDuration);
+
+        var assignmentDescription = document.createElement('div');
+        assignmentDescription.setAttribute('class', 'mission-desc');
+
+        var assignmentDescriptionTitle = document.createElement('h2');
+        assignmentDescriptionTitle.innerText = assignment.title;
+
+        var assignmentDescriptionParagraph = document.createElement('p');
+        assignmentDescriptionParagraph.innerHTML = assignment.shortDescription;
+        var assignmentDescriptionKeywords = document.createElement('p');
+        assignmentDescriptionKeywords.setAttribute('class', 'mission-keywords');
+        assignmentDescriptionKeywords.innerText = assignment.keywords;
+
+        assignmentDescription.appendChild(assignmentDescriptionTitle);
+        assignmentDescription.appendChild(assignmentDescriptionParagraph);
+        if (showKeywords) {
+            assignmentDescription.appendChild(assignmentDescriptionKeywords);
+        }
+
+        assignmentContainer.appendChild(assignmentLogoTime);
+        assignmentContainer.appendChild(assignmentDescription);
+
+        relevantAssignmentsListContainer.appendChild(assignmentContainer);
     }
 
     renderAcademic(document, resumeData) {
