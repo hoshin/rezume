@@ -89,7 +89,7 @@ describe('rezume', () => {
         it('should call appendItemsToDOMList with the correct section of the resumedata', () => {
             //setup
             const document = {
-                getElementById: () => {
+                getElementById  : () => {
                     return {some: 'element'}
                 }, createElement: () => {
                 }
@@ -131,7 +131,7 @@ describe('rezume', () => {
         it('should call appendItemsToDOMList with the correct section of the resumedata', () => {
             //setup
             const document = {
-                getElementById: () => {
+                getElementById  : () => {
                     return {some: 'element'}
                 }, createElement: () => {
                 }
@@ -141,7 +141,7 @@ describe('rezume', () => {
             const resumeData = {
                 annex: {
                     skills: {
-                        baz: {list: ['not the right list']},
+                        baz   : {list: ['not the right list']},
                         foobar: {list: ['foobar item']}
                     }
                 }
@@ -159,7 +159,7 @@ describe('rezume', () => {
         it('should not create any elements if none have a "show" flag', () => {
             //setup
             const document = {
-                getElementById: () => {
+                getElementById  : () => {
                     throw new Error('mock not set up')
                 }, createElement: sinon.spy()
             };
@@ -183,7 +183,7 @@ describe('rezume', () => {
         it('should append the 2 elements that have a "show" flag', () => {
             //setup
             const document = {
-                getElementById: () => {
+                getElementById  : () => {
                     throw new Error('mock not set up')
                 }, createElement: () => {
                     throw new Error('mock not set up')
@@ -191,7 +191,20 @@ describe('rezume', () => {
             };
             const title = {innerText: ''};
             const documentMock = sinon.mock(document);
-            const resumeData = {academic: [{first: 'item', description:'1st item', year:2016, show:true}, {second: 'item'}, {third: 'item', description:'3rd item', year: 2016,show:true}, {fourth: 'item'}], academicTitle: 'academic title'};
+            const resumeData = {
+                academic     : [{
+                    first      : 'item',
+                    description: '1st item',
+                    year       : 2016,
+                    show       : true
+                }, {second: 'item'}, {
+                    third      : 'item',
+                    description: '3rd item',
+                    year       : 2016,
+                    show       : true
+                }, {fourth: 'item'}],
+                academicTitle: 'academic title'
+            };
             const academicContainer = {appendChild: sinon.spy()};
 
             documentMock.expects('getElementById').withArgs('academic').returns(academicContainer);
@@ -227,6 +240,141 @@ describe('rezume', () => {
             assert.equal(secondParagraph.appendChild.calledTwice, true);
 
             assert.equal(academicContainer.appendChild.calledTwice, true);
+        });
+    });
+
+    describe('renderAbout', () => {
+        it('should set title and contents innerTexts of the about section', () => {
+            //setup
+            const aboutData = {title: 'foo', contents: 'bar'};
+            const aboutTitle = {innerText: 'title'};
+            const aboutContents = {innerText: 'contents'};
+            const document = {
+                getElementById: () => {
+                    return {foo: 'baz'}
+                }
+            };
+            const documentMock = sinon.mock(document);
+            documentMock.expects('getElementById').withArgs('aboutTitle').returns(aboutTitle);
+            documentMock.expects('getElementById').withArgs('aboutContents').returns(aboutContents);
+            //action
+            rezume.renderAbout(document, aboutData);
+            //assert
+            assert.equal(aboutTitle.innerText, 'foo');
+            assert.equal(aboutContents.innerText, 'bar');
+            documentMock.verify();
+        });
+    });
+
+    describe('renderHeader', () => {
+        it('should set the src attribute to the picture element if resumeData.header has a "picture" property', () => {
+            //setup
+            const resumeData = {header: {picture: 'picture-reference'}};
+            const document = {
+                getElementById: () => {
+                    return {foo: 'bar'};
+                }
+            };
+            const setAttributeSpy = sinon.spy();
+            const pictureElement = {setAttribute: setAttributeSpy};
+
+            const documentMock = sinon.mock(document);
+            documentMock.expects('getElementById').withArgs('picture').returns(pictureElement);
+            documentMock.expects('getElementById').withArgs('picture-reference').returns({
+                getAttribute: () => {
+                    return 'picture-src';
+                }
+            });
+
+            //action
+            rezume.renderHeader(resumeData, document);
+            //assert
+            assert.equal(setAttributeSpy.calledOnce, true);
+            assert.equal(setAttributeSpy.calledWithExactly('src', 'picture-src'), true);
+            documentMock.verify();
+        });
+
+        it('should set the "twitter" innerText and href if resumeData.header has a "twitter" attribute', () => {
+            //setup
+            const resumeData = {header: {twitter: 'foo'}};
+            const document = {
+                getElementById: () => {
+                    return {foo: 'bar'};
+                }
+            };
+            const setAttributeSpy = sinon.spy();
+            const twitterElement = {setAttribute: setAttributeSpy};
+
+            const documentMock = sinon.mock(document);
+            documentMock.expects('getElementById').withExactArgs('twitter').returns(twitterElement);
+
+            //action
+            rezume.renderHeader(resumeData, document);
+            //assert
+            assert.equal(setAttributeSpy.calledWithExactly('href', 'https://twitter.com/foo'), true);
+            assert.equal(twitterElement.innerText, '@foo');
+        });
+
+        it('should set the email link if resumeData.header has an "email" attribute', () => {
+            //setup
+            const resumeData = {header: {email: 'mail@foo.bar'}};
+            const document = {
+                getElementById: () => {
+                    return {foo: 'bar'};
+                }
+            };
+            const setAttributeSpy = sinon.spy();
+            const emailElement = {setAttribute: setAttributeSpy};
+
+            const documentMock = sinon.mock(document);
+            documentMock.expects('getElementById').withExactArgs('email').returns(emailElement);
+
+            //action
+            rezume.renderHeader(resumeData, document);
+            //assert
+            assert.equal(setAttributeSpy.calledWithExactly('href', 'mailto:mail@foo.bar'), true);
+            assert.equal(emailElement.innerText, 'mail@foo.bar');
+        });
+
+        it('should set any random element innerText to the value in the designated header property', () => {
+            //setup
+            const resumeData = {header: {random: 'some random data'}};
+            const document = {
+                getElementById: () => {
+                    return {foo: 'bar'};
+                }
+            };
+            const randomElement = {};
+
+            const documentMock = sinon.mock(document);
+            documentMock.expects('getElementById').withExactArgs('random').returns(randomElement);
+
+            //action
+            rezume.renderHeader(resumeData, document);
+            //assert
+            assert.equal(randomElement.innerText, 'some random data');
+        });
+
+        it('should accept multiple header properties', () => {
+            //setup
+            const resumeData = {header: {random: 'some random data', moreRandom: 'another property'}};
+            const document = {
+                getElementById: () => {
+                    return {foo: 'bar'};
+                }
+            };
+            const randomElement = {};
+            const moreRandomElement = {};
+
+            const documentMock = sinon.mock(document);
+            documentMock.expects('getElementById').withExactArgs('random').returns(randomElement);            documentMock.expects('getElementById').withExactArgs('random').returns(randomElement);
+            documentMock.expects('getElementById').withExactArgs('moreRandom').returns(moreRandomElement);
+
+            //action
+            rezume.renderHeader(resumeData, document);
+            //assert
+            assert.equal(randomElement.innerText, 'some random data');
+            assert.equal(moreRandomElement.innerText, 'another property');
         });
     });
 });

@@ -11,7 +11,7 @@ class Rezume {
 
         document.title = resumeData.title;
         this.renderHeader(resumeData, document);
-        this.renderAbout(document, resumeData);
+        this.renderAbout(document, resumeData.about);
         this.renderAcademic(document, resumeData);
         this.renderRelevantAssignments(document, resumeData, resumeOptions);
         if (resumeData.otherAssignments && resumeOptions.showOtherAssignments) {
@@ -30,7 +30,6 @@ class Rezume {
         this.renderAnnexBigSection(document, resumeData, 'publications');
         this.renderAnnexBigSection(document, resumeData, 'misc');
     }
-
 
     renderAnnexBigSection(document, resumeData, sectionName) {
         document.getElementById(sectionName + 'Title').innerText = resumeData.annex[sectionName].title;
@@ -92,7 +91,6 @@ class Rezume {
             assignmentDescription.appendChild(assignmentDescriptionTitle);
             assignmentDescription.appendChild(assignmentDescriptionParagraph);
             assignmentDescription.appendChild(assignmentDescriptionKeywords);
-
 
             assignmentContainer.appendChild(assignmentLogoTime);
             assignmentContainer.appendChild(assignmentDescription);
@@ -165,25 +163,28 @@ class Rezume {
         });
     }
 
-    renderAbout(document, resumeData) {
-        document.getElementById('aboutTitle').innerText = resumeData.about.title;
-        document.getElementById('aboutContents').innerText = resumeData.about.contents;
+    renderAbout(document, aboutData) {
+        document.getElementById('aboutTitle').innerText = aboutData.title;
+        document.getElementById('aboutContents').innerText = aboutData.contents;
     }
 
     renderHeader(resumeData, document) {
         Object.keys(resumeData.header).forEach(function (optionName) {
-            if (optionName === 'picture') {
-                document.getElementById('picture').setAttribute('src', document.getElementById(resumeData.header['picture']).getAttribute('src'));
-            } else if (optionName === 'twitter') {
-                document.getElementById(optionName).innerText = '@' + resumeData.header[optionName];
-                document.getElementById(optionName).setAttribute('href', 'https://twitter.com/' + resumeData.header[optionName]);
-            } else if (optionName === 'email') {
-                document.getElementById(optionName).innerText = resumeData.header[optionName];
-                document.getElementById(optionName).setAttribute('href', 'mailto:' + resumeData.header[optionName]);
-            } else {
-                document.getElementById(optionName).innerText = resumeData.header[optionName];
+                if (optionName === 'picture') {
+                    document.getElementById('picture').setAttribute('src', document.getElementById(resumeData.header['picture']).getAttribute('src'));
+                } else if (optionName === 'twitter') {
+                    const twitterElement = document.getElementById(optionName);
+                    twitterElement.innerText = '@' + resumeData.header[optionName];
+                    twitterElement.setAttribute('href', 'https://twitter.com/' + resumeData.header[optionName]);
+                } else if (optionName === 'email') {
+                    const emailElement = document.getElementById(optionName);
+                    emailElement.innerText = resumeData.header[optionName];
+                    emailElement.setAttribute('href', 'mailto:' + resumeData.header[optionName]);
+                } else {
+                    document.getElementById(optionName).innerText = resumeData.header[optionName];
+                }
             }
-        });
+        );
     }
 }
 
