@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title></title>
+    <link rel="stylesheet" href="./resources/style.css"/>
+</head>
+<body>
+<script type="text/javascript" src="./dist/rezume.js" charset="utf-8"></script>
+<script type="text/javascript" src="./dist/assignments.js" charset="utf-8"></script>
+<script type="text/javascript" src="./dist/resumeData.js" charset="utf-8"></script>
+
+
+<script type="text/javascript">
+    window.onload = function () {
+        var resumeOptions = {
+            showOtherAssignments: true,
+            showKeywords        : true
+        };
+
+        try{
+            var resume = new Rezume(resumeOptions, resumeData, assignments, document);
+            resume.render(document);
+        } catch(err){
+            document.getElementsByClassName('cv')[0].innerHTML = '';
+            alert(err.message);
+        }
+    };
+</script>
+
+<div class="cv" style="position:relative;">
+    <header style="height:160px;">
+        <div style="width:100%;height:100%;">
+            <p style="float:left;">
+                <span id="name" style="font-size:18px"></span>
+                <br>
+                <span id="position"></span>
+                <br>
+                <span id="addressLine1"></span>
+                <br>
+                <span id="addressLine2"></span>
+                <br>
+                <span id="phone"></span>
+                <br>
+                <a id="email" href=""></a>
+                <br>Twitter : <a id="twitter" href=""></a>
+                <br>Github : <a id="github" href=""></a>
+            </p>
+            <img style="float:right;margin-top:15px;height:150px;width:150px" id="picture"
+                 src=""
+                 alt="Photo">
+        </div>
+    </header>
+    <div style="width:100%">
+        <h1 id="aboutTitle"></h1>
+        <span id="aboutContents"></span>
+        <h1 id="academicTitle"></h1>
+        <div class="bloc" id="academic">
+        </div>
+
+        <h1 id="relevantAssignments"><span id="relevantAssignmentsTitle"></span><span id="relevantAssignmentsComment"
+                                                                                      class="small"></span></h1>
+        <div class="bloc" id="relevantAssignmentsList">
+        </div>
+
+        <h1 id="otherAssignments" style="display:none"><span id="otherAssignmentsTitle"></span><span
+                id="otherAssignmentsComment" class="small"></span></h1>
+        <div style="display:none" class="bloc" id="otherAssignmentsList">
+
+        </div>
+    </div>
+    <p style="page-break-after:always;"></p>
+
+    <div>
+        <h1 id="annexTitle"></h1>
+
+        <h2 id="skillsTitle" style="font-weight:bold"></h2>
+
+        <div class="bloc bloc-competence">
+            <h2 id="techSkillsTitle"></h2>
+            <ul id="techSkillsList">
+
+            </ul>
+        </div>
+        <div class="bloc bloc-competence">
+            <h2 id="architectureSkillsTitle"></h2>
+            <ul id="architectureSkillsList">
+            </ul>
+        </div>
+        <div class="divider"></div>
+        <div class="bloc bloc-competence">
+            <h2 id="methodologiesSkillsTitle"></h2>
+            <ul id="methodologiesSkillsList">
+
+            </ul>
+        </div>
+        <div class="bloc bloc-competence">
+            <h2 id="otherSkillsTitle"></h2>
+            <ul id="otherSkillsList">
+            </ul>
+        </div>
+
+        <h2 id="publicationsTitle" style="font-weight:bold"></h2>
+        <p>
+        <ul id="publicationsList">
+
+        </ul>
+        </p>
+
+        <h2 id="miscTitle" style="font-weight:bold"></h2>
+
+        <p>
+        <ul id="miscList">
+        </ul>
+        </p>
+    </div>
+
+
+</div>
+
+<!--all image bank beyond this point-->
+<img id="not-available" style="display:none" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAABmJLR0QA/wD/AP+gvaeTAAAACXBI
+WXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4AcKDSgcRons4AAAAB1pVFh0Q29tbWVudAAAAAAAQ3Jl
+YXRlZCB3aXRoIEdJTVBkLmUHAAAEGklEQVR42u2aXYhVVRTHfzM5SenkKITB+CBmWCBB9pDpIFIg
+GvRQ9NJEGlEmRpCmCD6YCiFET35EEwoRPlgvlvVSSQRCiGkQIeWgZJBkmh8ZM2kzeXw4a2DN5p6z
+z7n7qpP8f3C596y199rnnP/d3xuEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEK0nsx9
+TgK3R9K0sjwReUEZ8JoEGVuCnAYmSJCxIcgB+15f4yU+C3wJnAWGgD+B/UBvRPhM4sQFmWffF4DJ
+EUHagT2Rl7zH0kmQhCbkE/u9JSLISmc7DvRYUzffrkd8K9VkpQnyADAMDAD3lLzEw862JIi5xPm+
+kyDpnexOu95ekmbQ2bqCmF3ONyBB0gXpthd+BZheQZBJt5og7WPsfk4BW22SuKkgzU/u96OBb25B
+upA21Yfq84Iu4BzwX0GaV52t30ZoE0yc/pJO/aLz9UiUehO1NSXD03bgoxrD3hE+1bC3eUHGA79G
+0vQCX1ltGrbv/cBzBeVNM1EuShAhhBBCCCFuKv+n2WpWcN9Zi56nmThZq99lbC1rInDJTaIumU1c
+J2KC9AKd7rqTfOtU3CRGNoOO2qfRxs9YaMpasQzSTJwbugTzsCtsDbDWXT/k0k0h33sY8c0I4tzL
+6D2KKWZ/IXigf4AT5JtUM2s8fJE9JX4b8DpwDLgM/AK8BdxRQ5AnyNfOfgf+Bc6Tr7U906wgfVbQ
+EDCVfFt12GzvBWnfdTe2IfBtcr4dzv4Bxau1fwH3JwqSEn9HQb5vgI5I2W32fspWo/vqijER+Nsy
+73P2zwo691nAVfMdC2KdMPtV4D5n/9j+xd32kFMD8XYnCpIS3x+emMfofZbVkbJfdLafgQXAnfbs
+Xzjf0jqCLHcZn3L2p5395SDP5873iNl6nG1fhXI7XPrfEgVJiR8enljsfN9Hyj7E6ONNnm7n+7aO
+IEcs09mginaYLbMO3/O4K2xb0OxlwMKgWr8EfA2csWYxrNZDCYKkxi87PDEYKXuA+FmwzFqg2p15
+7DMnyPuD2c9Yk3ahwb8K4O2K8ZsVJDX+pBsgSOWR2fs1AvaVjGx8p/p8kO688y0D7mrw4CmCpMZf
+nNBkHXS22alD3U7XmWcNRiKYrWjmPp780LS/0VNBswfwh/M/SX7KZCawt0WCpMbvJz8J2ejwxBuR
+spc621FgkdW4cTZSfQzYCPxYRZBXXLCDJen8v2B54NsQ3Oj6BvmLmpRd17nJqhq/aNh7oMKwF+Cd
+VjVZR1ziFSXpVrh0Yed+t03CwomgZxywzk28TgJvAre1SJDU+G3AKqsZVyz/Fhu+Vh3h9QAf2hB6
+0AYRp20usxl4UAtBQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQtx7XAC+wzk9V/ttyAAAA
+AElFTkSuQmCC"/>
+
+</body>
+</html>
