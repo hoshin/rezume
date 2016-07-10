@@ -1,3 +1,5 @@
 .idea
 *.log
 qualimetry
+node_modules
+dist
