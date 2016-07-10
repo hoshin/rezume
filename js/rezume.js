@@ -1,6 +1,9 @@
 'use strict';
 class Rezume {
     constructor(options, resumeData) {
+        if(!resumeData){
+            throw new Error('You need to specify some resume data for all this to make sense');
+        }
         this.options = options;
         this.resumeData = resumeData;
     }

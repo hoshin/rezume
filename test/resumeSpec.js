@@ -5,7 +5,7 @@ import sinon from 'sinon';
 describe('rezume', () => {
     let rezume;
     beforeEach(() => {
-        rezume = new Rezume();
+        rezume = new Rezume({}, {});
     });
 
     describe('appendItemsToDOMList', () => {
@@ -759,7 +759,21 @@ describe('rezume', () => {
             assert.deepEqual(rezume.createAssignmentLogoFrame.calledOnce, true);
             assert.deepEqual(rezume.createAssignmentDescription.getCall(0).args, [document, assignment, false]);
             assert.deepEqual(rezume.createAssignmentLogoFrame.getCall(0).args, [document, assignment]);
-
         });
     });
+
+    describe('constructor', () => {
+        it('should complain if resume data is null or undefined', () => {
+            //setup
+
+            //action / assert
+            try{
+                new Rezume();
+                assert.fail('Constructor should throw an error if given resumedata is not defined');
+            } catch(err){
+                assert.equal(err.message, 'You need to specify some resume data for all this to make sense');
+                assert.equal(true, true);
+            }
+        });
+    })
 });
