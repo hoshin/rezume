@@ -35,7 +35,7 @@ class Rezume {
 
     renderAnnexBigSection(document, resumeData, sectionName) {
         document.getElementById(sectionName + 'Title').innerText = resumeData.annex[sectionName].title;
-        var targetSectionList = document.getElementById(sectionName + 'List');
+        const targetSectionList = document.getElementById(sectionName + 'List');
         if (targetSectionList) {
             this.appendItemsToDOMList(resumeData.annex[sectionName].list, document, targetSectionList);
         }
@@ -43,7 +43,7 @@ class Rezume {
 
     appendItemsToDOMList(skillsFromResumeData, document, DOMElementToAppendTo) {
         skillsFromResumeData.forEach(function (skill) {
-            var otherSkillItem = document.createElement('li');
+            const otherSkillItem = document.createElement('li');
             otherSkillItem.innerHTML = skill;
             DOMElementToAppendTo.appendChild(otherSkillItem);
         });
@@ -51,7 +51,7 @@ class Rezume {
 
     renderAnnexSkillsSection(document, resumeData, skillSectionName) {
         document.getElementById(skillSectionName + 'SkillsTitle').innerText = resumeData.annex.skills[skillSectionName].title;
-        var otherSkillsList = document.getElementById(skillSectionName + 'SkillsList');
+        const otherSkillsList = document.getElementById(skillSectionName + 'SkillsList');
         if (otherSkillsList) {
             this.appendItemsToDOMList(resumeData.annex.skills[skillSectionName].list, document, otherSkillsList);
         }
@@ -61,36 +61,26 @@ class Rezume {
         document.getElementById(`${sectionIdPrefix}AssignmentsTitle`).innerText =   resumeData[`${sectionIdPrefix}Assignments`].title;
         document.getElementById(`${sectionIdPrefix}AssignmentsComment`).innerText = resumeData[`${sectionIdPrefix}Assignments`].comment;
 
-        var relevantAssignmentsListContainer = document.getElementById(`${sectionIdPrefix}AssignmentsList`);
+        const relevantAssignmentsListContainer = document.getElementById(`${sectionIdPrefix}AssignmentsList`);
         resumeData[`${sectionIdPrefix}Assignments`].list.forEach( (assignment) => {
             this.appendAssignmentToList(document, assignment, resumeOptions.showKeywords, relevantAssignmentsListContainer);
         });
     }
 
     appendAssignmentToList(document, assignment, showKeywords, relevantAssignmentsListContainer) {
-        var assignmentContainer = document.createElement('div');
+        const assignmentContainer = document.createElement('div');
         assignmentContainer.setAttribute('class', 'mission');
+        const assignmentLogoTime = this.createAssignmentLogoFrame(document, assignment);
 
-        var assignmentLogoTime = document.createElement('div');
-        assignmentLogoTime.setAttribute('class', 'mission-logo-time');
-        var assignmentImage = document.createElement('img');
-        assignmentImage.setAttribute('src', document.getElementById(assignment.logo).getAttribute('src'));
-        assignmentImage.setAttribute('alt', assignment.logoAlt);
-        var assignmentDuration = document.createElement('p');
-        assignmentDuration.innerText = assignment.duration;
-
-        assignmentLogoTime.appendChild(assignmentImage);
-        assignmentLogoTime.appendChild(assignmentDuration);
-
-        var assignmentDescription = document.createElement('div');
+        const assignmentDescription = document.createElement('div');
         assignmentDescription.setAttribute('class', 'mission-desc');
 
-        var assignmentDescriptionTitle = document.createElement('h2');
+        const assignmentDescriptionTitle = document.createElement('h2');
         assignmentDescriptionTitle.innerText = assignment.title;
 
-        var assignmentDescriptionParagraph = document.createElement('p');
+        const assignmentDescriptionParagraph = document.createElement('p');
         assignmentDescriptionParagraph.innerHTML = assignment.shortDescription;
-        var assignmentDescriptionKeywords = document.createElement('p');
+        const assignmentDescriptionKeywords = document.createElement('p');
         assignmentDescriptionKeywords.setAttribute('class', 'mission-keywords');
         assignmentDescriptionKeywords.innerText = assignment.keywords;
 
@@ -106,16 +96,33 @@ class Rezume {
         relevantAssignmentsListContainer.appendChild(assignmentContainer);
     }
 
+    createAssignmentLogoFrame(document, assignment) {
+        const assignmentLogoTime = document.createElement('div');
+        assignmentLogoTime.setAttribute('class', 'mission-logo-time');
+        const assignmentImage = document.createElement('img');
+        const imageResourceElement = document.getElementById(assignment.logo);
+        if(imageResourceElement){
+            assignmentImage.setAttribute('src', imageResourceElement.getAttribute('src'));
+        }
+        assignmentImage.setAttribute('alt', assignment.logoAlt);
+        const assignmentDuration = document.createElement('p');
+        assignmentDuration.innerText = assignment.duration;
+
+        assignmentLogoTime.appendChild(assignmentImage);
+        assignmentLogoTime.appendChild(assignmentDuration);
+        return assignmentLogoTime;
+    }
+
     renderAcademic(document, resumeData) {
         document.getElementById('academicTitle').innerText = resumeData.academicTitle;
-        var academicContainer = document.getElementById('academic');
+        const academicContainer = document.getElementById('academic');
         resumeData.academic.forEach(function (educationItem) {
 
             if (educationItem.show) {
-                var academicItem = document.createElement('p');
-                var academicTitle = document.createElement('b');
+                const academicItem = document.createElement('p');
+                const academicTitle = document.createElement('b');
                 academicTitle.innerText = educationItem.title;
-                var academicDescription = document.createElement('span');
+                const academicDescription = document.createElement('span');
                 academicDescription.setAttribute('style', 'margin-left:10px;');
                 academicDescription.innerText = `${educationItem.description} - ${educationItem.year}`;
                 academicItem.appendChild(academicTitle);

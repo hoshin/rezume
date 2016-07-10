@@ -407,7 +407,7 @@ describe('rezume', () => {
             const title = {innerText: 'old text'}, comment = {innerText: 'old comment'};
             const resumeData = {relevantAssignments: {title: 'new title', comment: 'new comment', list: []}};
             const document = {
-                getElementById: function () {
+                getElementById: () => {
                     return null;
                 }
             };
@@ -437,7 +437,7 @@ describe('rezume', () => {
                 }
             };
             const document = {
-                getElementById: function () {
+                getElementById: () => {
                     return null;
                 }
             };
@@ -466,7 +466,7 @@ describe('rezume', () => {
                 }
             };
             const document = {
-                getElementById: function () {
+                getElementById: () => {
                     return null;
                 }
             };
@@ -489,7 +489,7 @@ describe('rezume', () => {
         it('should trigger the rendering of all annex sections', () => {
             //setup
             const document = {
-                getElementById: function () {
+                getElementById: () => {
                     return null;
                 }
             };
@@ -517,7 +517,7 @@ describe('rezume', () => {
         it('should set annex titles of the section based on resumeData contents', () => {
             //setup
             const document = {
-                getElementById: function () {
+                getElementById: () => {
                     return null;
                 }
             };
@@ -566,15 +566,15 @@ describe('rezume', () => {
             rezume.renderAssignments = sinon.spy();
             rezume.renderAnnex = sinon.spy();
             rezume.resumeData = {};
-            rezume.options = {showOtherAssignments:true};
+            rezume.options = {showOtherAssignments: true};
             const document = {
-                getElementById: function () {
+                getElementById: () => {
                     return {};
                 }
             };
             const documentMock = sinon.mock(document);
-            const otherAssignmentsList = {setAttribute:sinon.spy()};
-            const otherAssignments = {setAttribute:sinon.spy()};
+            const otherAssignmentsList = {setAttribute: sinon.spy()};
+            const otherAssignments = {setAttribute: sinon.spy()};
             documentMock.expects('getElementById').withExactArgs('otherAssignmentsList').returns(otherAssignmentsList);
             documentMock.expects('getElementById').withExactArgs('otherAssignments').returns(otherAssignments);
 
@@ -596,13 +596,80 @@ describe('rezume', () => {
             rezume.renderAcademic = sinon.spy();
             rezume.renderAssignments = sinon.spy();
             rezume.renderAnnex = sinon.spy();
-            rezume.resumeData = {title:'foobar'};
-            const document = {title:'baz'};
+            rezume.resumeData = {title: 'foobar'};
+            const document = {title: 'baz'};
             rezume.options = {};
             //action
             rezume.render(document);
             //assert
             assert.equal(document.title, 'foobar');
         });
-    })
+    });
+
+    describe('createAssignmentLogoFrame', () => {
+        it('should create an element where logo and time data are inserted', () => {
+            //setup
+            const document = {
+                getElementById: () => {
+                    return {};
+                },
+                createElement:function(){
+                    return {};
+                }
+            };
+            const documentMock = sinon.mock(document);
+            const assignmentLogoTime = {setAttribute:sinon.spy(), appendChild:sinon.spy()};
+            const assignmentImage = {setAttribute:sinon.spy()};
+            const assignmentDuration = {innerText:'needs to be modified'};
+
+            documentMock.expects('createElement').withExactArgs('div').returns(assignmentLogoTime);
+            documentMock.expects('createElement').withExactArgs('img').returns(assignmentImage);
+            documentMock.expects('getElementById').withExactArgs('foo').returns({getAttribute:() => {return 'assignment logo src'}});
+            documentMock.expects('createElement').withExactArgs('p').returns(assignmentDuration);
+            //action
+            const actual = rezume.createAssignmentLogoFrame(document, {logo:'foo', logoAlt:'bar', duration:'baz'});
+            //assert
+            assert.isNotNull(actual);
+            assert.deepEqual(assignmentLogoTime.setAttribute.calledOnce, true);
+            assert.deepEqual(assignmentLogoTime.setAttribute.getCall(0).args, ['class', 'mission-logo-time']);
+            assert.deepEqual(assignmentLogoTime.appendChild.calledTwice, true);
+            assert.deepEqual(assignmentLogoTime.appendChild.getCall(0).args, [assignmentImage]);
+            assert.deepEqual(assignmentLogoTime.appendChild.getCall(1).args, [assignmentDuration]);
+            assert.deepEqual(assignmentImage.setAttribute.calledTwice, true);
+            assert.deepEqual(assignmentImage.setAttribute.getCall(0).args, ['src', 'assignment logo src']);
+            assert.deepEqual(assignmentImage.setAttribute.getCall(1).args, ['alt', 'bar']);
+            assert.deepEqual(assignmentDuration.innerText, 'baz');
+
+            documentMock.verify();
+        });
+
+        it('should not try to get the image src if given ID does not match any DOM element', () => {
+            //setup
+            const document = {
+                getElementById: () => {
+                    return {};
+                },
+                createElement:function(){
+                    return {};
+                }
+            };
+            const documentMock = sinon.mock(document);
+            const assignmentLogoTime = {setAttribute:sinon.spy(), appendChild:sinon.spy()};
+            const assignmentImage = {setAttribute:sinon.spy()};
+            const assignmentDuration = {innerText:'needs to be modified'};
+
+            documentMock.expects('createElement').withExactArgs('div').returns(assignmentLogoTime);
+            documentMock.expects('createElement').withExactArgs('img').returns(assignmentImage);
+            documentMock.expects('getElementById').withExactArgs('foo').returns(null);
+            documentMock.expects('createElement').withExactArgs('p').returns(assignmentDuration);
+            //action
+            const actual = rezume.createAssignmentLogoFrame(document, {logo:'foo', logoAlt:'bar', duration:'baz'});
+            //assert
+            assert.isNotNull(actual);
+            assert.deepEqual(assignmentImage.setAttribute.calledOnce, true);
+            assert.deepEqual(assignmentImage.setAttribute.getCall(0).args, ['alt', 'bar']);
+
+            documentMock.verify();
+        });
+    });
 });
