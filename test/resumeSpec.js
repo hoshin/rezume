@@ -315,6 +315,27 @@ describe('rezume', () => {
             assert.equal(twitterElement.innerText, '@foo');
         });
 
+        it('should set the "github" innerText and href if resumeData.header has a "github" attribute', () => {
+            //setup
+            const resumeData = {header: {github: 'foo'}};
+            const document = {
+                getElementById: () => {
+                    return {foo: 'bar'};
+                }
+            };
+            const setAttributeSpy = sinon.spy();
+            const githubElement = {setAttribute: setAttributeSpy};
+
+            const documentMock = sinon.mock(document);
+            documentMock.expects('getElementById').withExactArgs('github').returns(githubElement);
+
+            //action
+            rezume.renderHeader(resumeData, document);
+            //assert
+            assert.equal(setAttributeSpy.calledWithExactly('href', 'https://github.com/foo'), true);
+            assert.equal(githubElement.innerText, 'https://github.com/foo');
+        });
+
         it('should set the email link if resumeData.header has an "email" attribute', () => {
             //setup
             const resumeData = {header: {email: 'mail@foo.bar'}};
@@ -367,7 +388,8 @@ describe('rezume', () => {
             const moreRandomElement = {};
 
             const documentMock = sinon.mock(document);
-            documentMock.expects('getElementById').withExactArgs('random').returns(randomElement);            documentMock.expects('getElementById').withExactArgs('random').returns(randomElement);
+            documentMock.expects('getElementById').withExactArgs('random').returns(randomElement);
+            documentMock.expects('getElementById').withExactArgs('random').returns(randomElement);
             documentMock.expects('getElementById').withExactArgs('moreRandom').returns(moreRandomElement);
 
             //action
@@ -377,4 +399,210 @@ describe('rezume', () => {
             assert.equal(moreRandomElement.innerText, 'another property');
         });
     });
+
+    //éviter les boom si on n'a pas l'image qu'il faut pour un assignment
+    describe('renderAssignments', () => {
+        it('should set the title and comments of the relevant assignments section', () => {
+            //setup
+            const title = {innerText: 'old text'}, comment = {innerText: 'old comment'};
+            const resumeData = {relevantAssignments: {title: 'new title', comment: 'new comment', list: []}};
+            const document = {
+                getElementById: function () {
+                    return null;
+                }
+            };
+            const documentMock = sinon.mock(document);
+
+            documentMock.expects('getElementById').withExactArgs('relevantAssignmentsTitle').once().returns(title);
+            documentMock.expects('getElementById').withExactArgs('relevantAssignmentsComment').once().returns(comment);
+            documentMock.expects('getElementById').withExactArgs('relevantAssignmentsList').once().returns({});
+            rezume.appendAssignmentToList = sinon.spy();
+
+            //action
+            rezume.renderAssignments(document, resumeData, {}, 'relevant');
+            //assert
+            assert.equal(title.innerText, 'new title');
+            assert.equal(comment.innerText, 'new comment');
+            documentMock.verify();
+        });
+
+        it('should correctly call the appendAssignment method if 1 assignment is present', () => {
+            //setup
+            const title = {innerText: 'old text'}, comment = {innerText: 'old comment'};
+            const resumeData = {
+                relevantAssignments: {
+                    title: 'new title', comment: 'new comment', list: [
+                        {assignment: 'data'}
+                    ]
+                }
+            };
+            const document = {
+                getElementById: function () {
+                    return null;
+                }
+            };
+            const documentMock = sinon.mock(document);
+
+            documentMock.expects('getElementById').withExactArgs('relevantAssignmentsTitle').once().returns(title);
+            documentMock.expects('getElementById').withExactArgs('relevantAssignmentsComment').once().returns(comment);
+            documentMock.expects('getElementById').withExactArgs('relevantAssignmentsList').once().returns({});
+            rezume.appendAssignmentToList = sinon.spy();
+            //action
+            rezume.renderAssignments(document, resumeData, {}, 'relevant');
+
+            //assert
+            documentMock.verify();
+            assert.deepEqual(rezume.appendAssignmentToList.getCall(0).args, [document, {assignment: 'data'}, undefined, {}]);
+        });
+
+        it('should append 2 elements to the assignments list if configured assigments list has 2 elements', () => {
+            //setup
+            const title = {innerText: 'old text'}, comment = {innerText: 'old comment'};
+            const resumeData = {
+                relevantAssignments: {
+                    title: 'new title', comment: 'new comment', list: [
+                        {}, {}
+                    ]
+                }
+            };
+            const document = {
+                getElementById: function () {
+                    return null;
+                }
+            };
+            const documentMock = sinon.mock(document);
+
+            documentMock.expects('getElementById').withExactArgs('relevantAssignmentsTitle').once().returns(title);
+            documentMock.expects('getElementById').withExactArgs('relevantAssignmentsComment').once().returns(comment);
+            documentMock.expects('getElementById').withExactArgs('relevantAssignmentsList').once().returns({});
+            rezume.appendAssignmentToList = sinon.spy();
+            //action
+            rezume.renderAssignments(document, resumeData, {}, 'relevant');
+
+            //assert
+            documentMock.verify();
+            assert.equal(rezume.appendAssignmentToList.calledTwice, true);
+        });
+    });
+
+    describe('renderAnnex', () => {
+        it('should trigger the rendering of all annex sections', () => {
+            //setup
+            const document = {
+                getElementById: function () {
+                    return null;
+                }
+            };
+            const documentMock = sinon.mock(document);
+
+            documentMock.expects('getElementById').withExactArgs('annexTitle').once().returns({});
+            documentMock.expects('getElementById').withExactArgs('skillsTitle').once().returns({});
+
+            rezume.renderAnnexBigSection = sinon.spy();
+            rezume.renderAnnexSkillsSection = sinon.spy();
+            //action
+            rezume.renderAnnex(document, {annex: {skills: {}}});
+            //assert
+            assert.equal(rezume.renderAnnexBigSection.calledTwice, true);
+            assert.equal(rezume.renderAnnexBigSection.getCall(0).args[2], ['publications']);
+            assert.equal(rezume.renderAnnexBigSection.getCall(1).args[2], ['misc']);
+
+            assert.equal(rezume.renderAnnexSkillsSection.callCount, 4);
+            assert.equal(rezume.renderAnnexSkillsSection.getCall(0).args[2], ['tech']);
+            assert.equal(rezume.renderAnnexSkillsSection.getCall(1).args[2], ['architecture']);
+            assert.equal(rezume.renderAnnexSkillsSection.getCall(2).args[2], ['methodologies']);
+            assert.equal(rezume.renderAnnexSkillsSection.getCall(3).args[2], ['other']);
+        });
+
+        it('should set annex titles of the section based on resumeData contents', () => {
+            //setup
+            const document = {
+                getElementById: function () {
+                    return null;
+                }
+            };
+            const documentMock = sinon.mock(document);
+            const annexTitle = {}, annexSkillsTitle = {};
+            documentMock.expects('getElementById').withExactArgs('annexTitle').once().returns(annexTitle);
+            documentMock.expects('getElementById').withExactArgs('skillsTitle').once().returns(annexSkillsTitle);
+
+            rezume.renderAnnexBigSection = sinon.spy();
+            rezume.renderAnnexSkillsSection = sinon.spy();
+            //action
+            rezume.renderAnnex(document, {annex: {skills: {title: 'annex skills title'}, title: 'annex title'}});
+            //assert
+            assert.equal(annexTitle.innerText, 'annex title');
+            assert.equal(annexSkillsTitle.innerText, 'annex skills title');
+        });
+    });
+
+    describe('render', () => {
+        it('should not render the "other assignments section" by default', () => {
+            //setup
+            rezume.renderHeader = sinon.spy();
+            rezume.renderAbout = sinon.spy();
+            rezume.renderAcademic = sinon.spy();
+            rezume.renderAssignments = sinon.spy();
+            rezume.renderAnnex = sinon.spy();
+            rezume.resumeData = {};
+            rezume.options = {};
+
+            //action
+            rezume.render({});
+            //assert
+            assert.equal(rezume.renderAssignments.calledOnce, true);
+            assert.equal(rezume.renderAssignments.getCall(0).args[3], 'relevant');
+            assert.equal(rezume.renderHeader.calledOnce, true);
+            assert.equal(rezume.renderAbout.calledOnce, true);
+            assert.equal(rezume.renderAcademic.calledOnce, true);
+            assert.equal(rezume.renderAnnex.calledOnce, true);
+        });
+
+        it('should render the "other assignments section" if resumeOptions specify it', () => {
+            //setup
+            rezume.renderHeader = sinon.spy();
+            rezume.renderAbout = sinon.spy();
+            rezume.renderAcademic = sinon.spy();
+            rezume.renderAssignments = sinon.spy();
+            rezume.renderAnnex = sinon.spy();
+            rezume.resumeData = {};
+            rezume.options = {showOtherAssignments:true};
+            const document = {
+                getElementById: function () {
+                    return {};
+                }
+            };
+            const documentMock = sinon.mock(document);
+            const otherAssignmentsList = {setAttribute:sinon.spy()};
+            const otherAssignments = {setAttribute:sinon.spy()};
+            documentMock.expects('getElementById').withExactArgs('otherAssignmentsList').returns(otherAssignmentsList);
+            documentMock.expects('getElementById').withExactArgs('otherAssignments').returns(otherAssignments);
+
+            //action
+            rezume.render(document);
+            //assert
+            assert.equal(rezume.renderAssignments.calledTwice, true);
+            assert.equal(rezume.renderAssignments.getCall(1).args[3], 'other');
+            assert.equal(otherAssignmentsList.setAttribute.calledOnce, true);
+            assert.equal(otherAssignmentsList.setAttribute.calledWithExactly('style', 'display:block'), true);
+            assert.equal(otherAssignments.setAttribute.calledOnce, true);
+            assert.equal(otherAssignments.setAttribute.calledWithExactly('style', 'display:block'), true);
+        });
+
+        it('should set global document title', () => {
+            //setup
+            rezume.renderHeader = sinon.spy();
+            rezume.renderAbout = sinon.spy();
+            rezume.renderAcademic = sinon.spy();
+            rezume.renderAssignments = sinon.spy();
+            rezume.renderAnnex = sinon.spy();
+            rezume.resumeData = {title:'foobar'};
+            const document = {title:'baz'};
+            rezume.options = {};
+            //action
+            rezume.render(document);
+            //assert
+            assert.equal(document.title, 'foobar');
+        });
+    })
 });

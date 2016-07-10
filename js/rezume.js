@@ -13,9 +13,11 @@ class Rezume {
         this.renderHeader(resumeData, document);
         this.renderAbout(document, resumeData.about);
         this.renderAcademic(document, resumeData);
-        this.renderRelevantAssignments(document, resumeData, resumeOptions);
-        if (resumeData.otherAssignments && resumeOptions.showOtherAssignments) {
-            this.renderOtherAssignments(document, resumeData, resumeOptions);
+        this.renderAssignments(document, resumeData, resumeOptions, 'relevant');
+        if (resumeOptions.showOtherAssignments) {
+            document.getElementById('otherAssignmentsList').setAttribute('style', 'display:block');
+            document.getElementById('otherAssignments').setAttribute('style', 'display:block');
+            this.renderAssignments(document, resumeData, resumeOptions, 'other')
         }
         this.renderAnnex(document, resumeData);
     }
@@ -55,23 +57,12 @@ class Rezume {
         }
     }
 
-    renderOtherAssignments(document, resumeData, resumeOptions) {
-        document.getElementById('otherAssignmentsTitle').innerText = resumeData.otherAssignments.title;
-        document.getElementById('otherAssignmentsComment').innerText = resumeData.otherAssignments.comment;
-        var otherAssignmentsListContainer = document.getElementById('otherAssignmentsList');
-        otherAssignmentsListContainer.setAttribute('style', 'display:block');
-        document.getElementById('otherAssignments').setAttribute('style', 'display:block');
-        resumeData.otherAssignments.list.forEach( (assignment) => {
-            this.appendAssignmentToList(document, assignment, resumeOptions.showKeywords, otherAssignmentsListContainer);
-        });
-    }
+    renderAssignments(document, resumeData, resumeOptions, sectionIdPrefix) {
+        document.getElementById(`${sectionIdPrefix}AssignmentsTitle`).innerText =   resumeData[`${sectionIdPrefix}Assignments`].title;
+        document.getElementById(`${sectionIdPrefix}AssignmentsComment`).innerText = resumeData[`${sectionIdPrefix}Assignments`].comment;
 
-    renderRelevantAssignments(document, resumeData, resumeOptions) {
-        document.getElementById('relevantAssignmentsTitle').innerText = resumeData.relevantAssignments.title;
-        document.getElementById('relevantAssignmentsComment').innerText = resumeData.relevantAssignments.comment;
-
-        var relevantAssignmentsListContainer = document.getElementById('relevantAssignmentsList');
-        resumeData.relevantAssignments.list.forEach( (assignment) => {
+        var relevantAssignmentsListContainer = document.getElementById(`${sectionIdPrefix}AssignmentsList`);
+        resumeData[`${sectionIdPrefix}Assignments`].list.forEach( (assignment) => {
             this.appendAssignmentToList(document, assignment, resumeOptions.showKeywords, relevantAssignmentsListContainer);
         });
     }
@@ -126,7 +117,7 @@ class Rezume {
                 academicTitle.innerText = educationItem.title;
                 var academicDescription = document.createElement('span');
                 academicDescription.setAttribute('style', 'margin-left:10px;');
-                academicDescription.innerText = educationItem.description + ' - ' + educationItem.year;
+                academicDescription.innerText = `${educationItem.description} - ${educationItem.year}`;
                 academicItem.appendChild(academicTitle);
                 academicItem.appendChild(academicDescription);
                 academicContainer.appendChild(academicItem);
@@ -146,12 +137,16 @@ class Rezume {
                 } else if (optionName === 'twitter') {
                     const twitterElement = document.getElementById(optionName);
                     twitterElement.innerText = '@' + resumeData.header[optionName];
-                    twitterElement.setAttribute('href', 'https://twitter.com/' + resumeData.header[optionName]);
+                    twitterElement.setAttribute('href', `https://twitter.com/${resumeData.header[optionName]}`);
                 } else if (optionName === 'email') {
                     const emailElement = document.getElementById(optionName);
                     emailElement.innerText = resumeData.header[optionName];
-                    emailElement.setAttribute('href', 'mailto:' + resumeData.header[optionName]);
-                } else {
+                    emailElement.setAttribute('href', `mailto:${resumeData.header[optionName]}`);
+                } else if(optionName === 'github'){
+                    const githubElement = document.getElementById(optionName);
+                    githubElement.innerText = `https://github.com/${resumeData.header[optionName]}`;
+                    githubElement.setAttribute('href', `https://github.com/${resumeData.header[optionName]}`);
+                }else {
                     document.getElementById(optionName).innerText = resumeData.header[optionName];
                 }
             }
