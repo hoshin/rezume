@@ -3,3 +3,4 @@
 qualimetry
 node_modules
 dist
+*-mine*
