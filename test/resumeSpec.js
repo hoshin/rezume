@@ -613,23 +613,26 @@ describe('rezume', () => {
                 getElementById: () => {
                     return {};
                 },
-                createElement:function(){
+                createElement : function () {
                     return {};
                 }
             };
             const documentMock = sinon.mock(document);
-            const assignmentLogoTime = {setAttribute:sinon.spy(), appendChild:sinon.spy()};
-            const assignmentImage = {setAttribute:sinon.spy()};
-            const assignmentDuration = {innerText:'needs to be modified'};
+            const assignmentLogoTime = {setAttribute: sinon.spy(), appendChild: sinon.spy()};
+            const assignmentImage = {setAttribute: sinon.spy()};
+            const assignmentDuration = {innerText: 'needs to be modified'};
 
             documentMock.expects('createElement').withExactArgs('div').returns(assignmentLogoTime);
             documentMock.expects('createElement').withExactArgs('img').returns(assignmentImage);
-            documentMock.expects('getElementById').withExactArgs('foo').returns({getAttribute:() => {return 'assignment logo src'}});
+            documentMock.expects('getElementById').withExactArgs('foo').returns({
+                getAttribute: () => {
+                    return 'assignment logo src'
+                }
+            });
             documentMock.expects('createElement').withExactArgs('p').returns(assignmentDuration);
             //action
-            const actual = rezume.createAssignmentLogoFrame(document, {logo:'foo', logoAlt:'bar', duration:'baz'});
+            rezume.createAssignmentLogoFrame(document, {logo: 'foo', logoAlt: 'bar', duration: 'baz'});
             //assert
-            assert.isNotNull(actual);
             assert.deepEqual(assignmentLogoTime.setAttribute.calledOnce, true);
             assert.deepEqual(assignmentLogoTime.setAttribute.getCall(0).args, ['class', 'mission-logo-time']);
             assert.deepEqual(assignmentLogoTime.appendChild.calledTwice, true);
@@ -649,26 +652,83 @@ describe('rezume', () => {
                 getElementById: () => {
                     return {};
                 },
-                createElement:function(){
+                createElement : function () {
                     return {};
                 }
             };
             const documentMock = sinon.mock(document);
-            const assignmentLogoTime = {setAttribute:sinon.spy(), appendChild:sinon.spy()};
-            const assignmentImage = {setAttribute:sinon.spy()};
-            const assignmentDuration = {innerText:'needs to be modified'};
+            const assignmentLogoTime = {setAttribute: sinon.spy(), appendChild: sinon.spy()};
+            const assignmentImage = {setAttribute: sinon.spy()};
+            const assignmentDuration = {innerText: 'needs to be modified'};
 
             documentMock.expects('createElement').withExactArgs('div').returns(assignmentLogoTime);
             documentMock.expects('createElement').withExactArgs('img').returns(assignmentImage);
             documentMock.expects('getElementById').withExactArgs('foo').returns(null);
             documentMock.expects('createElement').withExactArgs('p').returns(assignmentDuration);
             //action
-            const actual = rezume.createAssignmentLogoFrame(document, {logo:'foo', logoAlt:'bar', duration:'baz'});
+            rezume.createAssignmentLogoFrame(document, {logo: 'foo', logoAlt: 'bar', duration: 'baz'});
             //assert
-            assert.isNotNull(actual);
             assert.deepEqual(assignmentImage.setAttribute.calledOnce, true);
             assert.deepEqual(assignmentImage.setAttribute.getCall(0).args, ['alt', 'bar']);
 
+            documentMock.verify();
+        });
+    });
+
+    describe('createAssignmentDescription', () => {
+        it('should create a title and paragraph for the description and set them to the values in the assignment object', () => {
+            //setup
+            const assignment = {title: 'title', shortDescription: 'short description'};
+            const assignmentDescription = {setAttribute: sinon.spy(), appendChild: sinon.spy()};
+            const document = {
+                createElement: () => {
+                }
+            };
+            const documentMock = sinon.mock(document);
+            const descriptionTitle = {};
+            const descriptionParagraph = {};
+            documentMock.expects('createElement').withExactArgs('div').returns(assignmentDescription);
+            documentMock.expects('createElement').withExactArgs('h2').returns(descriptionTitle);
+            documentMock.expects('createElement').withExactArgs('p').returns(descriptionParagraph);
+
+            //action
+            rezume.createAssignmentDescription(document, assignment);
+            //assert
+            assert.deepEqual(assignmentDescription.appendChild.calledTwice, true);
+            assert.deepEqual(assignmentDescription.appendChild.getCall(0).args, [descriptionTitle]);
+            assert.deepEqual(assignmentDescription.appendChild.getCall(1).args, [descriptionParagraph]);
+            assert.deepEqual(assignmentDescription.setAttribute.getCall(0).args, ['class', 'mission-desc']);
+            assert.deepEqual(descriptionTitle.innerText, 'title');
+            assert.deepEqual(descriptionParagraph.innerHTML, 'short description');
+
+            documentMock.verify();
+        });
+
+        it('should append keywords to the description block if "showKeywords" is true', () => {
+            //setup
+            const assignment = {title: 'title', shortDescription: 'short description', keywords: 'foo bar baz'};
+            const assignmentDescription = {setAttribute: sinon.spy(), appendChild: sinon.spy()};
+            const document = {
+                createElement: () => {
+                }
+            };
+            const documentMock = sinon.mock(document);
+            const descriptionTitle = {};
+            const descriptionParagraph = {};
+            const keywords = {setAttribute: sinon.spy()};
+            documentMock.expects('createElement').withExactArgs('div').returns(assignmentDescription);
+            documentMock.expects('createElement').withExactArgs('h2').returns(descriptionTitle);
+            const paragraphMock = documentMock.expects('createElement').withExactArgs('p').twice();
+            paragraphMock.onCall(0).returns(descriptionParagraph);
+            paragraphMock.onCall(1).returns(keywords);
+
+            //action
+            rezume.createAssignmentDescription(document, assignment, true);
+            //assert
+            assert.equal(assignmentDescription.appendChild.calledThrice, true);
+            assert.deepEqual(assignmentDescription.appendChild.getCall(2).args, [keywords]);
+            assert.deepEqual(keywords.setAttribute.getCall(0).args, ['class', 'mission-keywords']);
+            assert.equal(keywords.innerText, 'foo bar baz');
             documentMock.verify();
         });
     });

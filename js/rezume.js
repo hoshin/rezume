@@ -71,7 +71,15 @@ class Rezume {
         const assignmentContainer = document.createElement('div');
         assignmentContainer.setAttribute('class', 'mission');
         const assignmentLogoTime = this.createAssignmentLogoFrame(document, assignment);
+        const assignmentDescription = this.createAssignmentDescription(document, assignment, showKeywords);
 
+        assignmentContainer.appendChild(assignmentLogoTime);
+        assignmentContainer.appendChild(assignmentDescription);
+
+        relevantAssignmentsListContainer.appendChild(assignmentContainer);
+    }
+
+    createAssignmentDescription(document, assignment, showKeywords) {
         const assignmentDescription = document.createElement('div');
         assignmentDescription.setAttribute('class', 'mission-desc');
 
@@ -80,20 +88,18 @@ class Rezume {
 
         const assignmentDescriptionParagraph = document.createElement('p');
         assignmentDescriptionParagraph.innerHTML = assignment.shortDescription;
-        const assignmentDescriptionKeywords = document.createElement('p');
-        assignmentDescriptionKeywords.setAttribute('class', 'mission-keywords');
-        assignmentDescriptionKeywords.innerText = assignment.keywords;
 
         assignmentDescription.appendChild(assignmentDescriptionTitle);
         assignmentDescription.appendChild(assignmentDescriptionParagraph);
+
         if (showKeywords) {
+            const assignmentDescriptionKeywords = document.createElement('p');
+            assignmentDescriptionKeywords.setAttribute('class', 'mission-keywords');
+            assignmentDescriptionKeywords.innerText = assignment.keywords;
             assignmentDescription.appendChild(assignmentDescriptionKeywords);
         }
 
-        assignmentContainer.appendChild(assignmentLogoTime);
-        assignmentContainer.appendChild(assignmentDescription);
-
-        relevantAssignmentsListContainer.appendChild(assignmentContainer);
+        return assignmentDescription;
     }
 
     createAssignmentLogoFrame(document, assignment) {
