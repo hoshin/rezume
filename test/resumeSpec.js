@@ -732,4 +732,34 @@ describe('rezume', () => {
             documentMock.verify();
         });
     });
+
+    describe('appendAssignmentToList', () => {
+        it('should create logo and description sections, append them to a top container and append it to the argument container', () => {
+            //setup
+            const topLevelContainer = {appendChild:sinon.spy()};
+            const document = {createElement:() => {}};
+            const documentMock = sinon.mock(document);
+            const assignmentContainer = {appendChild:sinon.spy(), setAttribute:sinon.spy()};
+            documentMock.expects('createElement').withExactArgs('div').returns(assignmentContainer);
+            rezume.createAssignmentDescription = sinon.spy();
+            rezume.createAssignmentLogoFrame = sinon.spy();
+            const assignment = {assignment:'data'};
+
+            //action
+            rezume.appendAssignmentToList(document, assignment, false, topLevelContainer);
+            //assert
+            assert.equal(rezume.createAssignmentDescription.calledOnce, true);
+            assert.equal(rezume.createAssignmentLogoFrame.calledOnce, true);
+            assert.equal(assignmentContainer.setAttribute.calledOnce, true);
+            assert.deepEqual(assignmentContainer.setAttribute.getCall(0).args, ['class', 'mission']);
+            assert.equal(topLevelContainer.appendChild.calledOnce, true);
+            assert.deepEqual(topLevelContainer.appendChild.getCall(0).args, [assignmentContainer]);
+
+            assert.deepEqual(rezume.createAssignmentDescription.calledOnce, true);
+            assert.deepEqual(rezume.createAssignmentLogoFrame.calledOnce, true);
+            assert.deepEqual(rezume.createAssignmentDescription.getCall(0).args, [document, assignment, false]);
+            assert.deepEqual(rezume.createAssignmentLogoFrame.getCall(0).args, [document, assignment]);
+
+        });
+    });
 });

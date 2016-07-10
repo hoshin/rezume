@@ -70,11 +70,9 @@ class Rezume {
     appendAssignmentToList(document, assignment, showKeywords, relevantAssignmentsListContainer) {
         const assignmentContainer = document.createElement('div');
         assignmentContainer.setAttribute('class', 'mission');
-        const assignmentLogoTime = this.createAssignmentLogoFrame(document, assignment);
-        const assignmentDescription = this.createAssignmentDescription(document, assignment, showKeywords);
 
-        assignmentContainer.appendChild(assignmentLogoTime);
-        assignmentContainer.appendChild(assignmentDescription);
+        assignmentContainer.appendChild(this.createAssignmentLogoFrame(document, assignment));
+        assignmentContainer.appendChild(this.createAssignmentDescription(document, assignment, showKeywords));
 
         relevantAssignmentsListContainer.appendChild(assignmentContainer);
     }
