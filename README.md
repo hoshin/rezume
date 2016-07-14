@@ -1,4 +1,4 @@
-# rEZume, because .docx for resumes are a pain in the bum
+# rEZume, because using .docx for resumes is a pain in the bum
 
 rEZume is aimed at people that'd rather edit JS files than fire up a special text editor they only use to edit their resume in the first place.
 It gives a certain level of flexibility, making edit / preview "as simple as" editing a single file and reloading a browser tab
