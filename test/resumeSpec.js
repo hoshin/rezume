@@ -668,8 +668,9 @@ describe('rezume', () => {
             //action
             rezume.createAssignmentLogoFrame(document, {logo: 'foo', logoAlt: 'bar', duration: 'baz'});
             //assert
-            assert.deepEqual(assignmentImage.setAttribute.calledOnce, true);
-            assert.deepEqual(assignmentImage.setAttribute.getCall(0).args, ['alt', 'bar']);
+            assert.deepEqual(assignmentImage.setAttribute.calledTwice, true);
+            assert.deepEqual(assignmentImage.setAttribute.getCall(0).args, ['src', '']);
+            assert.deepEqual(assignmentImage.setAttribute.getCall(1).args, ['alt', 'bar']);
 
             documentMock.verify();
         });
@@ -736,14 +737,17 @@ describe('rezume', () => {
     describe('appendAssignmentToList', () => {
         it('should create logo and description sections, append them to a top container and append it to the argument container', () => {
             //setup
-            const topLevelContainer = {appendChild:sinon.spy()};
-            const document = {createElement:() => {}};
+            const topLevelContainer = {appendChild: sinon.spy()};
+            const document = {
+                createElement: () => {
+                }
+            };
             const documentMock = sinon.mock(document);
-            const assignmentContainer = {appendChild:sinon.spy(), setAttribute:sinon.spy()};
+            const assignmentContainer = {appendChild: sinon.spy(), setAttribute: sinon.spy()};
             documentMock.expects('createElement').withExactArgs('div').returns(assignmentContainer);
             rezume.createAssignmentDescription = sinon.spy();
             rezume.createAssignmentLogoFrame = sinon.spy();
-            const assignment = {assignment:'data'};
+            const assignment = {assignment: 'data'};
 
             //action
             rezume.appendAssignmentToList(document, assignment, false, topLevelContainer);
@@ -767,13 +771,53 @@ describe('rezume', () => {
             //setup
 
             //action / assert
-            try{
+            try {
                 new Rezume();
                 assert.fail('Constructor should throw an error if given resumedata is not defined');
-            } catch(err){
+            } catch (err) {
                 assert.equal(err.message, 'You need to specify some resume data for all this to make sense');
                 assert.equal(true, true);
             }
         });
-    })
+    });
+
+    describe('lookupPicture', () => {
+        it('should return the location passed as parameter if it is a URL', () => {
+            //setup / action
+            const actual = rezume.lookupPicture('http://foo.bar');
+            //assert
+            assert.equal(actual, 'http://foo.bar');
+        });
+
+        it('should lookup the embedded resource in the document if location is not a URL', () => {
+            //setup
+            const document = {getElementById: () => {}};
+            const documentMock = sinon.mock(document);
+            const picture = {getAttribute:() => {}};
+            const pictureMock = sinon.mock(picture);
+
+            documentMock.expects('getElementById').withExactArgs('foo').once().returns(picture);
+            pictureMock.expects('getAttribute').withExactArgs('src').once().returns('some embedded picture data');
+            //action
+            const actual = rezume.lookupPicture('foo', document);
+            //assert
+            assert.equal(actual, 'some embedded picture data');
+            documentMock.verify();
+            pictureMock.verify();
+        });
+
+        it('should return an empty string if logo cannot be found', () => {
+            //setup
+            const document = {getElementById: () => {}};
+            const documentMock = sinon.mock(document);
+
+            documentMock.expects('getElementById').withExactArgs('foo').once().returns(null);
+            //action
+            const actual = rezume.lookupPicture('foo', document);
+            //assert
+            assert.equal(actual, '');
+            documentMock.verify();
+        });
+
+    });
 });

@@ -1,7 +1,7 @@
 'use strict';
 class Rezume {
     constructor(options, resumeData) {
-        if(!resumeData){
+        if (!resumeData) {
             throw new Error('You need to specify some resume data for all this to make sense');
         }
         this.options = options;
@@ -45,7 +45,7 @@ class Rezume {
     }
 
     appendItemsToDOMList(skillsFromResumeData, document, DOMElementToAppendTo) {
-        skillsFromResumeData.forEach(function (skill) {
+        skillsFromResumeData.forEach((skill) => {
             const otherSkillItem = document.createElement('li');
             otherSkillItem.innerHTML = skill;
             DOMElementToAppendTo.appendChild(otherSkillItem);
@@ -61,11 +61,11 @@ class Rezume {
     }
 
     renderAssignments(document, resumeData, resumeOptions, sectionIdPrefix) {
-        document.getElementById(`${sectionIdPrefix}AssignmentsTitle`).innerText =   resumeData[`${sectionIdPrefix}Assignments`].title;
+        document.getElementById(`${sectionIdPrefix}AssignmentsTitle`).innerText = resumeData[`${sectionIdPrefix}Assignments`].title;
         document.getElementById(`${sectionIdPrefix}AssignmentsComment`).innerText = resumeData[`${sectionIdPrefix}Assignments`].comment;
 
         const relevantAssignmentsListContainer = document.getElementById(`${sectionIdPrefix}AssignmentsList`);
-        resumeData[`${sectionIdPrefix}Assignments`].list.forEach( (assignment) => {
+        resumeData[`${sectionIdPrefix}Assignments`].list.forEach((assignment) => {
             this.appendAssignmentToList(document, assignment, resumeOptions.showKeywords, relevantAssignmentsListContainer);
         });
     }
@@ -107,10 +107,8 @@ class Rezume {
         const assignmentLogoTime = document.createElement('div');
         assignmentLogoTime.setAttribute('class', 'mission-logo-time');
         const assignmentImage = document.createElement('img');
-        const imageResourceElement = document.getElementById(assignment.logo);
-        if(imageResourceElement){
-            assignmentImage.setAttribute('src', imageResourceElement.getAttribute('src'));
-        }
+
+        assignmentImage.setAttribute('src', this.lookupPicture(assignment.logo, document));
         assignmentImage.setAttribute('alt', assignment.logoAlt);
         const assignmentDuration = document.createElement('p');
         assignmentDuration.innerText = assignment.duration;
@@ -123,7 +121,7 @@ class Rezume {
     renderAcademic(document, resumeData) {
         document.getElementById('academicTitle').innerText = resumeData.academicTitle;
         const academicContainer = document.getElementById('academic');
-        resumeData.academic.forEach(function (educationItem) {
+        resumeData.academic.forEach((educationItem) => {
 
             if (educationItem.show) {
                 const academicItem = document.createElement('p');
@@ -145,9 +143,9 @@ class Rezume {
     }
 
     renderHeader(resumeData, document) {
-        Object.keys(resumeData.header).forEach(function (optionName) {
+        Object.keys(resumeData.header).forEach((optionName) => {
                 if (optionName === 'picture') {
-                    document.getElementById('picture').setAttribute('src', document.getElementById(resumeData.header['picture']).getAttribute('src'));
+                    document.getElementById('picture').setAttribute('src', this.lookupPicture(resumeData.header['picture'], document));
                 } else if (optionName === 'twitter') {
                     const twitterElement = document.getElementById(optionName);
                     twitterElement.innerText = '@' + resumeData.header[optionName];
@@ -156,15 +154,28 @@ class Rezume {
                     const emailElement = document.getElementById(optionName);
                     emailElement.innerText = resumeData.header[optionName];
                     emailElement.setAttribute('href', `mailto:${resumeData.header[optionName]}`);
-                } else if(optionName === 'github'){
+                } else if (optionName === 'github') {
                     const githubElement = document.getElementById(optionName);
                     githubElement.innerText = `https://github.com/${resumeData.header[optionName]}`;
                     githubElement.setAttribute('href', `https://github.com/${resumeData.header[optionName]}`);
-                }else {
+                } else {
                     document.getElementById(optionName).innerText = resumeData.header[optionName];
                 }
             }
         );
+    }
+
+    lookupPicture(location, document) {
+        if (location.match(/^(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z0-9]+-?)*[a-z0-9]+)(?:\.(?:[a-z0-9]+-?)*[a-z0-9]+)*(?:\.(?:[a-z]{2,})))(?::\d{2,5})?(?:\/[^\s]*)?$/)) {
+            return location;
+        } else {
+            const pictureElement = document.getElementById(location);
+            if(pictureElement){
+                return pictureElement.getAttribute('src');
+            } else {
+                return '';
+            }
+        }
     }
 }
 
