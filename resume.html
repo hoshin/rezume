@@ -18,10 +18,10 @@
             showKeywords        : true
         };
 
-        try{
+        try {
             var resume = new Rezume(resumeOptions, resumeData, assignments, document);
             resume.render(document);
-        } catch(err){
+        } catch (err) {
             document.getElementsByClassName('cv')[0].innerHTML = '';
             alert(err.message);
         }
@@ -32,23 +32,35 @@
     <header style="height:160px;">
         <div style="width:100%;height:100%;">
             <p style="float:left;">
-                <span id="name" style="font-size:18px"></span>
-                <br>
-                <span id="position"></span>
-                <br>
-                <span id="addressLine1"></span>
-                <br>
-                <span id="addressLine2"></span>
-                <br>
-                <span id="phone"></span>
-                <br>
-                <a id="email" href=""></a>
-                <br>Twitter : <a id="twitter" href=""></a>
-                <br>Github : <a id="github" href=""></a>
+                <span id="nameContainer">
+                    <span id="name" style="font-size:18px"></span>
+                </span>
+                <span id="positionContainer">
+                    <br><span id="position"></span>
+                </span>
+                <span id="addressLine1Container">
+                    <br><span id="addressLine1"></span>
+                </span>
+                <span id="addressLine2Container">
+                    <br><span id="addressLine2"></span>
+                </span>
+                <span id="phoneContainer">
+                    <br><span id="phone"></span>
+                </span>
+                <span id="emailContainer">
+                    <br><a id="email" href=""></a>
+                </span>
+                <span id="twitterContainer">
+                    <br>Twitter : <a id="twitter" href=""></a>
+                </span>
+                <span id="githubContainer">
+                    <br>Github : <a id="github" href=""></a>
+                </span>
             </p>
-            <img style="float:right;margin-top:15px;height:150px;width:150px" id="picture"
-                 src=""
-                 alt="Photo">
+            <span id="pictureContainer">
+                <img style="float:right;margin-top:15px;height:150px;width:150px" id="picture"
+                    src="" alt="Photo"/>
+            </span>
         </div>
     </header>
     <div style="width:100%">

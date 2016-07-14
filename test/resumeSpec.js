@@ -266,6 +266,44 @@ describe('rezume', () => {
         });
     });
 
+    describe('hideUnspecifiedHeaders', () => {
+        let headersList;
+
+        beforeEach(() => {
+            headersList = ['twitter', 'github', 'email', 'name', 'position', 'addressLine1', 'addressLine2', 'phone', 'picture']
+        });
+
+        const testCases = ['twitter', 'github', 'email', 'name', 'position', 'addressLine1', 'addressLine2', 'phone', 'picture'];
+
+        testCases.forEach((missingHeader) => {
+            it(`should not display the ${missingHeader} section if no property is present in headers data`, () => {
+                //setup
+                const document = {
+                    getElementById: () => {
+                    }
+                };
+                const documentMock = sinon.mock(document);
+                const missingHeaderElement = {
+                    setAttribute: () => {
+                    }
+                };
+
+                headersList = headersList.filter((headerItem) => {
+                    return headerItem !== missingHeader;
+                });
+
+                const missingHeaderElementMock = sinon.mock(missingHeaderElement);
+                documentMock.expects('getElementById').withExactArgs(`${missingHeader}Container`).once().returns(missingHeaderElement);
+                missingHeaderElementMock.expects('setAttribute').withExactArgs('style', 'display:none').once();
+                //action
+                rezume.hideUnspecifiedHeaders(headersList, document);
+                //assert
+                documentMock.verify();
+                missingHeaderElementMock.verify();
+            });
+        });
+    });
+
     describe('renderHeader', () => {
         it('should set the src attribute to the picture element if resumeData.header has a "picture" property', () => {
             //setup
@@ -544,8 +582,9 @@ describe('rezume', () => {
             rezume.renderAcademic = sinon.spy();
             rezume.renderAssignments = sinon.spy();
             rezume.renderAnnex = sinon.spy();
-            rezume.resumeData = {};
+            rezume.resumeData = {header: {}};
             rezume.options = {};
+            rezume.hideUnspecifiedHeaders = sinon.stub();
 
             //action
             rezume.render({});
@@ -565,8 +604,10 @@ describe('rezume', () => {
             rezume.renderAcademic = sinon.spy();
             rezume.renderAssignments = sinon.spy();
             rezume.renderAnnex = sinon.spy();
-            rezume.resumeData = {};
+            rezume.resumeData = {header: {}};
             rezume.options = {showOtherAssignments: true};
+            rezume.hideUnspecifiedHeaders = sinon.stub();
+
             const document = {
                 getElementById: () => {
                     return {};
@@ -596,7 +637,8 @@ describe('rezume', () => {
             rezume.renderAcademic = sinon.spy();
             rezume.renderAssignments = sinon.spy();
             rezume.renderAnnex = sinon.spy();
-            rezume.resumeData = {title: 'foobar'};
+            rezume.resumeData = {title: 'foobar', header: {}};
+            rezume.hideUnspecifiedHeaders = sinon.stub();
             const document = {title: 'baz'};
             rezume.options = {};
             //action
@@ -791,9 +833,15 @@ describe('rezume', () => {
 
         it('should lookup the embedded resource in the document if location is not a URL', () => {
             //setup
-            const document = {getElementById: () => {}};
+            const document = {
+                getElementById: () => {
+                }
+            };
             const documentMock = sinon.mock(document);
-            const picture = {getAttribute:() => {}};
+            const picture = {
+                getAttribute: () => {
+                }
+            };
             const pictureMock = sinon.mock(picture);
 
             documentMock.expects('getElementById').withExactArgs('foo').once().returns(picture);
@@ -808,7 +856,10 @@ describe('rezume', () => {
 
         it('should return an empty string if logo cannot be found', () => {
             //setup
-            const document = {getElementById: () => {}};
+            const document = {
+                getElementById: () => {
+                }
+            };
             const documentMock = sinon.mock(document);
 
             documentMock.expects('getElementById').withExactArgs('foo').once().returns(null);
@@ -818,6 +869,5 @@ describe('rezume', () => {
             assert.equal(actual, '');
             documentMock.verify();
         });
-
     });
 });
