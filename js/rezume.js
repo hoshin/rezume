@@ -1,12 +1,13 @@
 'use strict';
 class Rezume {
-    constructor(options, resumeData) {
+    constructor(options, resumeData, assignments, document) {
         if (!resumeData) {
             throw new Error('You need to specify some resume data for all this to make sense');
         }
         this.options = options;
         this.resumeData = resumeData;
         this.expectedHeaders = ['twitter', 'github', 'email', 'name', 'position', 'addressLine1', 'addressLine2', 'phone', 'picture']
+        this.assignments = assignments;
     }
 
     render(document) {
@@ -67,8 +68,9 @@ class Rezume {
         document.getElementById(`${sectionIdPrefix}AssignmentsComment`).innerText = resumeData[`${sectionIdPrefix}Assignments`].comment;
 
         const relevantAssignmentsListContainer = document.getElementById(`${sectionIdPrefix}AssignmentsList`);
-        resumeData[`${sectionIdPrefix}Assignments`].list.forEach((assignment) => {
-            this.appendAssignmentToList(document, assignment, resumeOptions.showKeywords, relevantAssignmentsListContainer);
+
+        resumeData[`${sectionIdPrefix}Assignments`].list.forEach(assignmentName => {
+            this.appendAssignmentToList(document, this.assignments[assignmentName], resumeOptions.showKeywords, relevantAssignmentsListContainer);
         });
     }
 
@@ -141,7 +143,7 @@ class Rezume {
 
     renderAbout(document, aboutData) {
         document.getElementById('aboutTitle').innerText = aboutData.title;
-        document.getElementById('aboutContents').innerText = aboutData.contents;
+        document.getElementById('aboutContents').innerHTML = aboutData.contents;
     }
 
     renderHeader(resumeData, document) {
@@ -161,7 +163,7 @@ class Rezume {
                     githubElement.innerText = `https://github.com/${resumeData.header[optionName]}`;
                     githubElement.setAttribute('href', `https://github.com/${resumeData.header[optionName]}`);
                 } else {
-                    document.getElementById(optionName).innerText = resumeData.header[optionName];
+                    document.getElementById(optionName).innerHTML = resumeData.header[optionName];
                 }
             }
         );

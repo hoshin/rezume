@@ -20,7 +20,8 @@
   },
   "scripts": {
     "test": "mocha --compilers js:babel-core/register --recursive ./test/",
-    "coverage": "istanbul cover _mocha --dir qualimetry/cover -- --compilers js:babel-core/register -R spec ./test/*.js"
+    "coverage": "istanbul cover _mocha --dir qualimetry/cover -- --compilers js:babel-core/register -R spec ./test/*.js",
+    "build": "node ./node_modules/webpack/bin/webpack.js"
   },
   "keywords": [
     "resume",

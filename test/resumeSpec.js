@@ -5,7 +5,7 @@ import sinon from 'sinon';
 describe('rezume', () => {
     let rezume;
     beforeEach(() => {
-        rezume = new Rezume({}, {});
+        rezume = new Rezume({}, {}, {});
     });
 
     describe('appendItemsToDOMList', () => {
@@ -261,7 +261,7 @@ describe('rezume', () => {
             rezume.renderAbout(document, aboutData);
             //assert
             assert.equal(aboutTitle.innerText, 'foo');
-            assert.equal(aboutContents.innerText, 'bar');
+            assert.equal(aboutContents.innerHTML, 'bar');
             documentMock.verify();
         });
     });
@@ -411,7 +411,7 @@ describe('rezume', () => {
             //action
             rezume.renderHeader(resumeData, document);
             //assert
-            assert.equal(randomElement.innerText, 'some random data');
+            assert.equal(randomElement.innerHTML, 'some random data');
         });
 
         it('should accept multiple header properties', () => {
@@ -433,8 +433,8 @@ describe('rezume', () => {
             //action
             rezume.renderHeader(resumeData, document);
             //assert
-            assert.equal(randomElement.innerText, 'some random data');
-            assert.equal(moreRandomElement.innerText, 'another property');
+            assert.equal(randomElement.innerHTML, 'some random data');
+            assert.equal(moreRandomElement.innerHTML, 'another property');
         });
     });
 
@@ -467,11 +467,10 @@ describe('rezume', () => {
         it('should correctly call the appendAssignment method if 1 assignment is present', () => {
             //setup
             const title = {innerText: 'old text'}, comment = {innerText: 'old comment'};
+            rezume = new Rezume({}, {}, {assignment1:{some:'data'}});
             const resumeData = {
                 relevantAssignments: {
-                    title: 'new title', comment: 'new comment', list: [
-                        {assignment: 'data'}
-                    ]
+                    title: 'new title', comment: 'new comment', list: ['assignment1']
                 }
             };
             const document = {
@@ -490,17 +489,16 @@ describe('rezume', () => {
 
             //assert
             documentMock.verify();
-            assert.deepEqual(rezume.appendAssignmentToList.getCall(0).args, [document, {assignment: 'data'}, undefined, {}]);
+            assert.deepEqual(rezume.appendAssignmentToList.getCall(0).args, [document, {some:'data'}, undefined, {}]);
         });
 
-        it('should append 2 elements to the assignments list if configured assigments list has 2 elements', () => {
+        it('should append 2 elements to the assignments list if configured assignments list has 2 elements', () => {
             //setup
             const title = {innerText: 'old text'}, comment = {innerText: 'old comment'};
+            rezume = new Rezume({}, {}, {assignment1:{some:'data'}, assignment3:{some:'other data'}, assignment2:{some:'data again'}});
             const resumeData = {
                 relevantAssignments: {
-                    title: 'new title', comment: 'new comment', list: [
-                        {}, {}
-                    ]
+                    title: 'new title', comment: 'new comment', list: ['assignment1', 'assignment2']
                 }
             };
             const document = {
@@ -520,6 +518,8 @@ describe('rezume', () => {
             //assert
             documentMock.verify();
             assert.equal(rezume.appendAssignmentToList.calledTwice, true);
+            assert.deepEqual(rezume.appendAssignmentToList.getCall(0).args, [document, {some:'data'}, undefined, {}]);
+            assert.deepEqual(rezume.appendAssignmentToList.getCall(1).args, [document, {some:'data again'}, undefined, {}]);
         });
     });
 
