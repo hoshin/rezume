@@ -24,12 +24,12 @@ var assignments = {
         title           : 'Consultant / Senior Developer - SNCF'
     },
     legal_and_general: {
-        logo: 'legal_general',
-        logoAlt: 'L&G',
-        duration: 'May 2013 - Oct. 2013',
+        logo            : 'legal_general',
+        logoAlt         : 'L&G',
+        duration        : 'May 2013 - Oct. 2013',
         shortDescription: "Frontoffice site overhaul",
-        keywords: 'ASP.net, BackboneJS, Orchard',
-        title: 'Developer - Legal & General'
+        keywords        : 'ASP.net, BackboneJS, Orchard',
+        title           : 'Developer - Legal & General'
     },
     ludwig: {
         logo            : 'incubateur',
