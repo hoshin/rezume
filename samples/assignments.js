@@ -1,4 +1,5 @@
 var assignments = {
+    name: 'English',
     prestashop: {
         logo            : 'prestashop',
         logoAlt         : 'Prestashop',
@@ -53,7 +54,15 @@ var assignments = {
         duration        : 'June. 2014',
         shortDescription: "<p>Designed & implemented with a fellow developer a prototype that aimed to prove that it was possible to <ul><li>Design an API that would handle common retail banking operations, amongst different companies.</li><li>Ship a mobile application that could use it to make payments</li></ul></p><p>After a month, this first draft was demoed to ING NL's CEO, & led to what is now known as Payconiq (<a href='https://payconiq.com/'>https://payconiq.com/</a>)</p>",
         keywords        : 'Java, API, AngularJS, mobile, banking',
-        title           : 'Online payment application prototype development for ING Netherlands'
+        title           : 'Mobile payment application prototype development - ING Netherlands'
+    },
+    fm_logistics:{
+        logo            : 'fm_logistic',
+        logoAlt         : 'FM Logistic',
+        duration        : 'May 2014',
+        shortDescription: "<p>Implemented load testing benchmarks : <ul><li>Targeted load testing scenarios (with help from product owners)</li><li>Configured the CI platform to display performance trends and to break if performance was below a set threshold</li></ul></p>",
+        keywords        : 'Excilys Gatling, Scala, Jenkins CI',
+        title           : 'Load testing - FM Logistic'
     },
     digiposte: {
         logo            : 'digiposte',

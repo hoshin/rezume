@@ -37,7 +37,7 @@ var resumeData = {
     relevantAssignments: {
         title: 'Assignments',
         comment: '',
-        list: ['prestashop', 'tl_bandeau', 'sncf', 'ludwig', 'france_connect', 'ing', 'meltdown', 'legal_and_general', 'digiposte', 'orange', 'asip' ]
+        list: ['prestashop', 'tl_bandeau', 'sncf', 'ludwig', 'france_connect', 'ing', 'fm_logistics', 'meltdown', 'legal_and_general', 'digiposte', 'orange', 'asip' ]
     },
     otherAssignments: {
         title: '',
