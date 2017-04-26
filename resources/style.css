@@ -152,3 +152,11 @@ li li:before {
     font-style: italic;
     margin: 0
 }
+
+@media print
+{
+    .no-print, .no-print *
+    {
+        display: none !important;
+    }
+}

@@ -102,7 +102,7 @@ describe('rezume', () => {
             rezume.renderAnnexBigSection(document, resumeData, 'foobar');
             //assert
             assert.equal(appendItemsToDOMListStub.calledOnce, true);
-            assert.deepEqual(appendItemsToDOMListStub.getCall(0).args, [['foobar item'], document, {some: 'element'}]);
+            assert.deepEqual(appendItemsToDOMListStub.getCall(0).args, [['foobar item'], document, {innerHTML:'', some: 'element'}]);
         });
     });
 
@@ -151,7 +151,7 @@ describe('rezume', () => {
             rezume.renderAnnexSkillsSection(document, resumeData, 'foobar');
             //assert
             assert.equal(appendItemsToDOMListStub.calledOnce, true);
-            assert.deepEqual(appendItemsToDOMListStub.getCall(0).args, [['foobar item'], document, {some: 'element'}]);
+            assert.deepEqual(appendItemsToDOMListStub.getCall(0).args, [['foobar item'], document, {innerHTML:'', some: 'element'}]);
         });
     });
 
@@ -489,7 +489,7 @@ describe('rezume', () => {
 
             //assert
             documentMock.verify();
-            assert.deepEqual(rezume.appendAssignmentToList.getCall(0).args, [document, {some:'data'}, undefined, {}]);
+            assert.deepEqual(rezume.appendAssignmentToList.getCall(0).args, [document, {some:'data'}, undefined, {innerHTML:''}]);
         });
 
         it('should append 2 elements to the assignments list if configured assignments list has 2 elements', () => {
@@ -518,8 +518,8 @@ describe('rezume', () => {
             //assert
             documentMock.verify();
             assert.equal(rezume.appendAssignmentToList.calledTwice, true);
-            assert.deepEqual(rezume.appendAssignmentToList.getCall(0).args, [document, {some:'data'}, undefined, {}]);
-            assert.deepEqual(rezume.appendAssignmentToList.getCall(1).args, [document, {some:'data again'}, undefined, {}]);
+            assert.deepEqual(rezume.appendAssignmentToList.getCall(0).args, [document, {some:'data'}, undefined, {innerHTML:''}]);
+            assert.deepEqual(rezume.appendAssignmentToList.getCall(1).args, [document, {some:'data again'}, undefined, {innerHTML:''}]);
         });
     });
 

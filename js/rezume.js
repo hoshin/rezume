@@ -7,7 +7,31 @@ class Rezume {
         this.options = options;
         this.resumeData = resumeData;
         this.expectedHeaders = ['twitter', 'github', 'email', 'name', 'position', 'addressLine1', 'addressLine2', 'phone', 'picture']
-        this.assignments = assignments;
+        if (Array.isArray(assignments)) {
+            this.assignmentsList = assignments;
+            this.assignments = assignments[0];
+            this.updateCVSelector(assignments);
+        } else {
+            this.assignments = assignments;
+        }
+    }
+
+    selectorChange() {
+        const selectorValue = document.getElementById('cv_selector').value;
+        this.assignments = this.assignmentsList[selectorValue];
+        this.render(document);
+    }
+
+    updateCVSelector(assignmentsArray) {
+        const selector = document.getElementById('cv_selector');
+        selector.setAttribute('style', 'display:block');
+
+        assignmentsArray.forEach((assignmentsList, key) => {
+            const selectorOption = document.createElement('option');
+            selectorOption.setAttribute('value', key);
+            selectorOption.innerText = `Version ${assignmentsList.name || key}`;
+            selector.appendChild(selectorOption);
+        });
     }
 
     render(document) {
@@ -42,7 +66,9 @@ class Rezume {
     renderAnnexBigSection(document, resumeData, sectionName) {
         document.getElementById(sectionName + 'Title').innerText = resumeData.annex[sectionName].title;
         const targetSectionList = document.getElementById(sectionName + 'List');
+
         if (targetSectionList) {
+            targetSectionList.innerHTML = '';
             this.appendItemsToDOMList(resumeData.annex[sectionName].list, document, targetSectionList);
         }
     }
@@ -58,7 +84,9 @@ class Rezume {
     renderAnnexSkillsSection(document, resumeData, skillSectionName) {
         document.getElementById(skillSectionName + 'SkillsTitle').innerText = resumeData.annex.skills[skillSectionName].title;
         const otherSkillsList = document.getElementById(skillSectionName + 'SkillsList');
+
         if (otherSkillsList) {
+            otherSkillsList.innerHTML = '';
             this.appendItemsToDOMList(resumeData.annex.skills[skillSectionName].list, document, otherSkillsList);
         }
     }
@@ -68,9 +96,12 @@ class Rezume {
         document.getElementById(`${sectionIdPrefix}AssignmentsComment`).innerText = resumeData[`${sectionIdPrefix}Assignments`].comment;
 
         const relevantAssignmentsListContainer = document.getElementById(`${sectionIdPrefix}AssignmentsList`);
+        relevantAssignmentsListContainer.innerHTML = '';
 
         resumeData[`${sectionIdPrefix}Assignments`].list.forEach(assignmentName => {
-            this.appendAssignmentToList(document, this.assignments[assignmentName], resumeOptions.showKeywords, relevantAssignmentsListContainer);
+            if(this.assignments[assignmentName]){
+                this.appendAssignmentToList(document, this.assignments[assignmentName], resumeOptions.showKeywords, relevantAssignmentsListContainer);
+            }
         });
     }
 
@@ -80,7 +111,6 @@ class Rezume {
 
         assignmentContainer.appendChild(this.createAssignmentLogoFrame(document, assignment));
         assignmentContainer.appendChild(this.createAssignmentDescription(document, assignment, showKeywords));
-
         relevantAssignmentsListContainer.appendChild(assignmentContainer);
     }
 
@@ -125,6 +155,7 @@ class Rezume {
     renderAcademic(document, resumeData) {
         document.getElementById('academicTitle').innerText = resumeData.academicTitle;
         const academicContainer = document.getElementById('academic');
+        academicContainer.innerHTML = '';
         resumeData.academic.forEach((educationItem) => {
 
             if (educationItem.show) {
