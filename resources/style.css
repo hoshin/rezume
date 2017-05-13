@@ -160,3 +160,7 @@ li li:before {
         display: none !important;
     }
 }
+
+.headerData {
+    display:none;
+}

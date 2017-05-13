@@ -3,12 +3,12 @@ var resumeData = {
     header: {
         name: 'Martin Bahier',
         position: 'Software Craftsman / Tech Leader',
-        // addressLine1: '57 Boulevard Jean Jaurès',
-        // addressLine2: '92100 Boulogne Billancourt, France',
+        addressLine1: '57 Boulevard Jean Jaurès',
+        addressLine2: '92100 Boulogne Billancourt, France',
         phone: '+33 6 23 98 31 84',
         email: 'martin.bahier@gmail.com',
         twitter: 'MartinBahier',
-        // picture: 'https://media.licdn.com/media/AAEAAQAAAAAAAAa6AAAAJGY4ZTM2NTIzLWMxMDAtNGVkNS05MDNkLTFlNjFhYmRkZmQ2Yw.jpg',
+        picture: 'https://media.licdn.com/media/AAEAAQAAAAAAAAa6AAAAJGY4ZTM2NTIzLWMxMDAtNGVkNS05MDNkLTFlNjFhYmRkZmQ2Yw.jpg',
         github: 'hoshin'
     },
     about: {

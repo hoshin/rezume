@@ -89,7 +89,7 @@ describe('rezume', () => {
         it('should call appendItemsToDOMList with the correct section of the resumedata', () => {
             //setup
             const document = {
-                getElementById  : () => {
+                getElementById: () => {
                     return {some: 'element'}
                 }, createElement: () => {
                 }
@@ -102,7 +102,10 @@ describe('rezume', () => {
             rezume.renderAnnexBigSection(document, resumeData, 'foobar');
             //assert
             assert.equal(appendItemsToDOMListStub.calledOnce, true);
-            assert.deepEqual(appendItemsToDOMListStub.getCall(0).args, [['foobar item'], document, {innerHTML:'', some: 'element'}]);
+            assert.deepEqual(appendItemsToDOMListStub.getCall(0).args, [['foobar item'], document, {
+                innerHTML: '',
+                some: 'element'
+            }]);
         });
     });
 
@@ -131,7 +134,7 @@ describe('rezume', () => {
         it('should call appendItemsToDOMList with the correct section of the resumedata', () => {
             //setup
             const document = {
-                getElementById  : () => {
+                getElementById: () => {
                     return {some: 'element'}
                 }, createElement: () => {
                 }
@@ -141,7 +144,7 @@ describe('rezume', () => {
             const resumeData = {
                 annex: {
                     skills: {
-                        baz   : {list: ['not the right list']},
+                        baz: {list: ['not the right list']},
                         foobar: {list: ['foobar item']}
                     }
                 }
@@ -151,7 +154,10 @@ describe('rezume', () => {
             rezume.renderAnnexSkillsSection(document, resumeData, 'foobar');
             //assert
             assert.equal(appendItemsToDOMListStub.calledOnce, true);
-            assert.deepEqual(appendItemsToDOMListStub.getCall(0).args, [['foobar item'], document, {innerHTML:'', some: 'element'}]);
+            assert.deepEqual(appendItemsToDOMListStub.getCall(0).args, [['foobar item'], document, {
+                innerHTML: '',
+                some: 'element'
+            }]);
         });
     });
 
@@ -159,7 +165,7 @@ describe('rezume', () => {
         it('should not create any elements if none have a "show" flag', () => {
             //setup
             const document = {
-                getElementById  : () => {
+                getElementById: () => {
                     throw new Error('mock not set up')
                 }, createElement: sinon.spy()
             };
@@ -183,7 +189,7 @@ describe('rezume', () => {
         it('should append the 2 elements that have a "show" flag', () => {
             //setup
             const document = {
-                getElementById  : () => {
+                getElementById: () => {
                     throw new Error('mock not set up')
                 }, createElement: () => {
                     throw new Error('mock not set up')
@@ -192,16 +198,16 @@ describe('rezume', () => {
             const title = {innerText: ''};
             const documentMock = sinon.mock(document);
             const resumeData = {
-                academic     : [{
-                    first      : 'item',
+                academic: [{
+                    first: 'item',
                     description: '1st item',
-                    year       : 2016,
-                    show       : true
+                    year: 2016,
+                    show: true
                 }, {second: 'item'}, {
-                    third      : 'item',
+                    third: 'item',
                     description: '3rd item',
-                    year       : 2016,
-                    show       : true
+                    year: 2016,
+                    show: true
                 }, {fourth: 'item'}],
                 academicTitle: 'academic title'
             };
@@ -241,6 +247,28 @@ describe('rezume', () => {
 
             assert.equal(academicContainer.appendChild.calledTwice, true);
         });
+
+        it('should not try to render the academic section if there is no academic data', () => {
+            //setup
+            const document = {
+                getElementById: () => {
+                    throw new Error('mock not set up')
+                }
+            };
+            const academicTitle = {innerText: 'title'};
+            const academicContainer = {innerHTML: 'container'};
+            const documentMock = sinon.mock(document);
+            documentMock.expects('getElementById').withArgs('academic').once().returns(academicContainer);
+            documentMock.expects('getElementById').withArgs('academicTitle').once().returns(academicTitle);
+
+            //action
+            rezume.renderAcademic(document, {});
+
+            //assert
+            assert.equal(academicTitle.innerText, '');
+            assert.equal(academicContainer.innerHTML, '');
+            documentMock.verify();
+        });
     });
 
     describe('renderAbout', () => {
@@ -264,6 +292,26 @@ describe('rezume', () => {
             assert.equal(aboutContents.innerHTML, 'bar');
             documentMock.verify();
         });
+
+        it('should not render the about section if there is no about data to render', () => {
+            //setup
+            const aboutTitle = {innerText: ''};
+            const aboutContents = {innerHTML: ''};
+            const document = {
+                getElementById: () => {
+                    return {foo: 'baz'}
+                }
+            };
+            const documentMock = sinon.mock(document);
+            documentMock.expects('getElementById').withArgs('aboutTitle').returns(aboutTitle);
+            documentMock.expects('getElementById').withArgs('aboutContents').returns(aboutContents);
+            //action
+            rezume.renderAbout(document);
+            //assert
+            assert.equal(aboutTitle.innerText, '');
+            assert.equal(aboutContents.innerHTML, '');
+            documentMock.verify();
+        });
     });
 
     describe('hideUnspecifiedHeaders', () => {
@@ -276,14 +324,15 @@ describe('rezume', () => {
         const testCases = ['twitter', 'github', 'email', 'name', 'position', 'addressLine1', 'addressLine2', 'phone', 'picture'];
 
         testCases.forEach((missingHeader) => {
-            it(`should not display the ${missingHeader} section if no property is present in headers data`, () => {
+            it(`should not display the ${missingHeader} section if no such property is present in headers data`, () => {
                 //setup
+                rezume.expectedHeaders = [].concat(headersList);
                 const document = {
                     getElementById: () => {
                     }
                 };
                 const documentMock = sinon.mock(document);
-                const missingHeaderElement = {
+                const headerElement = {
                     setAttribute: () => {
                     }
                 };
@@ -292,14 +341,16 @@ describe('rezume', () => {
                     return headerItem !== missingHeader;
                 });
 
-                const missingHeaderElementMock = sinon.mock(missingHeaderElement);
-                documentMock.expects('getElementById').withExactArgs(`${missingHeader}Container`).once().returns(missingHeaderElement);
-                missingHeaderElementMock.expects('setAttribute').withExactArgs('style', 'display:none').once();
+                sinon.stub(headerElement, 'setAttribute').returns();
+
+                documentMock.expects('getElementById').withExactArgs(`${missingHeader}Container`).never();
+                documentMock.expects('getElementById').exactly(8).returns(headerElement);
+
                 //action
                 rezume.hideUnspecifiedHeaders(headersList, document);
                 //assert
                 documentMock.verify();
-                missingHeaderElementMock.verify();
+                assert.deepEqual(headerElement.setAttribute.getCall(0).args, ['style', 'display:block']);
             });
         });
     });
@@ -323,6 +374,7 @@ describe('rezume', () => {
                     return 'picture-src';
                 }
             });
+            sinon.stub(rezume, 'hideUnspecifiedHeaders');
 
             //action
             rezume.renderHeader(resumeData, document);
@@ -345,6 +397,7 @@ describe('rezume', () => {
 
             const documentMock = sinon.mock(document);
             documentMock.expects('getElementById').withExactArgs('twitter').returns(twitterElement);
+            sinon.stub(rezume, 'hideUnspecifiedHeaders');
 
             //action
             rezume.renderHeader(resumeData, document);
@@ -366,6 +419,7 @@ describe('rezume', () => {
 
             const documentMock = sinon.mock(document);
             documentMock.expects('getElementById').withExactArgs('github').returns(githubElement);
+            sinon.stub(rezume, 'hideUnspecifiedHeaders');
 
             //action
             rezume.renderHeader(resumeData, document);
@@ -387,6 +441,7 @@ describe('rezume', () => {
 
             const documentMock = sinon.mock(document);
             documentMock.expects('getElementById').withExactArgs('email').returns(emailElement);
+            sinon.stub(rezume, 'hideUnspecifiedHeaders');
 
             //action
             rezume.renderHeader(resumeData, document);
@@ -427,7 +482,6 @@ describe('rezume', () => {
 
             const documentMock = sinon.mock(document);
             documentMock.expects('getElementById').withExactArgs('random').returns(randomElement);
-            documentMock.expects('getElementById').withExactArgs('random').returns(randomElement);
             documentMock.expects('getElementById').withExactArgs('moreRandom').returns(moreRandomElement);
 
             //action
@@ -436,9 +490,21 @@ describe('rezume', () => {
             assert.equal(randomElement.innerHTML, 'some random data');
             assert.equal(moreRandomElement.innerHTML, 'another property');
         });
+
+        it('should not render header if no header data is present', () => {
+            //setup
+            const getElementSpy = sinon.spy();
+            const document = {
+                getElementById: getElementSpy
+            };
+
+            //action
+            rezume.renderHeader({}, document);
+            //assert
+            assert.equal(getElementSpy.callCount, 0);
+        });
     });
 
-    //éviter les boom si on n'a pas l'image qu'il faut pour un assignment
     describe('renderAssignments', () => {
         it('should set the title and comments of the relevant assignments section', () => {
             //setup
@@ -467,7 +533,7 @@ describe('rezume', () => {
         it('should correctly call the appendAssignment method if 1 assignment is present', () => {
             //setup
             const title = {innerText: 'old text'}, comment = {innerText: 'old comment'};
-            rezume = new Rezume({}, {}, {assignment1:{some:'data'}});
+            rezume = new Rezume({}, {}, {assignment1: {some: 'data'}});
             const resumeData = {
                 relevantAssignments: {
                     title: 'new title', comment: 'new comment', list: ['assignment1']
@@ -489,13 +555,17 @@ describe('rezume', () => {
 
             //assert
             documentMock.verify();
-            assert.deepEqual(rezume.appendAssignmentToList.getCall(0).args, [document, {some:'data'}, undefined, {innerHTML:''}]);
+            assert.deepEqual(rezume.appendAssignmentToList.getCall(0).args, [document, {some: 'data'}, undefined, {innerHTML: ''}]);
         });
 
         it('should append 2 elements to the assignments list if configured assignments list has 2 elements', () => {
             //setup
             const title = {innerText: 'old text'}, comment = {innerText: 'old comment'};
-            rezume = new Rezume({}, {}, {assignment1:{some:'data'}, assignment3:{some:'other data'}, assignment2:{some:'data again'}});
+            rezume = new Rezume({}, {}, {
+                assignment1: {some: 'data'},
+                assignment3: {some: 'other data'},
+                assignment2: {some: 'data again'}
+            });
             const resumeData = {
                 relevantAssignments: {
                     title: 'new title', comment: 'new comment', list: ['assignment1', 'assignment2']
@@ -518,8 +588,30 @@ describe('rezume', () => {
             //assert
             documentMock.verify();
             assert.equal(rezume.appendAssignmentToList.calledTwice, true);
-            assert.deepEqual(rezume.appendAssignmentToList.getCall(0).args, [document, {some:'data'}, undefined, {innerHTML:''}]);
-            assert.deepEqual(rezume.appendAssignmentToList.getCall(1).args, [document, {some:'data again'}, undefined, {innerHTML:''}]);
+            assert.deepEqual(rezume.appendAssignmentToList.getCall(0).args, [document, {some: 'data'}, undefined, {innerHTML: ''}]);
+            assert.deepEqual(rezume.appendAssignmentToList.getCall(1).args, [document, {some: 'data again'}, undefined, {innerHTML: ''}]);
+        });
+
+        it('should not render assignments section if nothing relevant to render', () => {
+            //setup
+            const document = {
+                getElementById: () => {
+                    return null;
+                }
+            };
+            const documentMock = sinon.mock(document);
+            const title = {innerText: 'title'};
+            const comment = {innerText: 'comment'}
+
+            documentMock.expects('getElementById').withExactArgs('relevantAssignmentsTitle').once().returns(title);
+            documentMock.expects('getElementById').withExactArgs('relevantAssignmentsComment').once().returns(comment);
+
+            //action
+            rezume.renderAssignments(document, {}, {}, 'relevant');
+            //assert
+            documentMock.verify();
+            assert.equal(title.innerText, '');
+            assert.equal(comment.innerText, '');
         });
     });
 
@@ -572,9 +664,39 @@ describe('rezume', () => {
             assert.equal(annexTitle.innerText, 'annex title');
             assert.equal(annexSkillsTitle.innerText, 'annex skills title');
         });
+
+        it('should not render annex section if noting to render', () => {
+            //setup
+            const document = {
+                getElementById: () => {
+                    return null;
+                }
+            };
+            const documentMock = sinon.mock(document);
+            const annexTitle = {innerText: 'title'}, annexSkillsTitle = {innerText: 'title 2'};
+            documentMock.expects('getElementById').withExactArgs('annexTitle').once().returns(annexTitle);
+            documentMock.expects('getElementById').withExactArgs('skillsTitle').once().returns(annexSkillsTitle);
+
+            rezume.renderAnnexBigSection = sinon.spy();
+            rezume.renderAnnexSkillsSection = sinon.spy();
+            //action
+            rezume.renderAnnex(document, {});
+            //assert
+            documentMock.verify();
+            assert.equal(annexTitle.innerText, '');
+            assert.equal(annexSkillsTitle.innerText, '');
+        });
     });
 
     describe('render', () => {
+        beforeEach(() => {
+           sinon.stub(rezume, 'getDocument');
+        });
+
+        afterEach(() => {
+            rezume.getDocument.restore();
+        });
+
         it('should not render the "other assignments section" by default', () => {
             //setup
             rezume.renderHeader = sinon.spy();
@@ -585,9 +707,10 @@ describe('rezume', () => {
             rezume.resumeData = {header: {}};
             rezume.options = {};
             rezume.hideUnspecifiedHeaders = sinon.stub();
+            rezume.getDocument.returns({});
 
             //action
-            rezume.render({});
+            rezume.render();
             //assert
             assert.equal(rezume.renderAssignments.calledOnce, true);
             assert.equal(rezume.renderAssignments.getCall(0).args[3], 'relevant');
@@ -618,9 +741,10 @@ describe('rezume', () => {
             const otherAssignments = {setAttribute: sinon.spy()};
             documentMock.expects('getElementById').withExactArgs('otherAssignmentsList').returns(otherAssignmentsList);
             documentMock.expects('getElementById').withExactArgs('otherAssignments').returns(otherAssignments);
+            rezume.getDocument.returns(document);
 
             //action
-            rezume.render(document);
+            rezume.render();
             //assert
             assert.equal(rezume.renderAssignments.calledTwice, true);
             assert.equal(rezume.renderAssignments.getCall(1).args[3], 'other');
@@ -641,8 +765,10 @@ describe('rezume', () => {
             rezume.hideUnspecifiedHeaders = sinon.stub();
             const document = {title: 'baz'};
             rezume.options = {};
+            rezume.getDocument.returns(document);
+
             //action
-            rezume.render(document);
+            rezume.render();
             //assert
             assert.equal(document.title, 'foobar');
         });
@@ -655,7 +781,7 @@ describe('rezume', () => {
                 getElementById: () => {
                     return {};
                 },
-                createElement : function () {
+                createElement: function () {
                     return {};
                 }
             };
@@ -694,7 +820,7 @@ describe('rezume', () => {
                 getElementById: () => {
                     return {};
                 },
-                createElement : function () {
+                createElement: function () {
                     return {};
                 }
             };
@@ -809,6 +935,15 @@ describe('rezume', () => {
     });
 
     describe('constructor', () => {
+        let updateSpy;
+        beforeEach(() => {
+            updateSpy = sinon.spy(Rezume.prototype, 'updateCVSelector');
+        });
+
+        afterEach(() => {
+            updateSpy.restore();
+        });
+
         it('should complain if resume data is null or undefined', () => {
             //setup
 
@@ -820,6 +955,80 @@ describe('rezume', () => {
                 assert.equal(err.message, 'You need to specify some resume data for all this to make sense');
                 assert.equal(true, true);
             }
+        });
+
+        it('should set the default values for resume header if none are set by the configuration', () => {
+            //setup
+            //action
+            const resume = new Rezume({}, {}, {});
+            //assert
+            assert.deepEqual(resume.expectedHeaders, ['twitter', 'github', 'email', 'name', 'addressLine1', 'addressLine2', 'position', 'phone', 'picture']);
+        });
+
+        it('should be able to handle an array of assignments (and setup to use the 1st one as default)', () => {
+            //setup
+            const assignments = [{name: 'resume 1', expectedHeaders: [1, 2, 3, 4]}, {name: 'resume 2'}];
+            //action
+            const resume = new Rezume({}, {}, assignments, null);
+            //assert
+            assert.equal(updateSpy.calledOnce, true);
+            assert.deepEqual(resume.assignmentsList, [{
+                name: 'resume 1',
+                expectedHeaders: [1, 2, 3, 4]
+            }, {name: 'resume 2'}]);
+            assert.deepEqual(resume.assignments, {name: 'resume 1', expectedHeaders: [1, 2, 3, 4]});
+            assert.deepEqual(resume.expectedHeaders, [1, 2, 3, 4]);
+            assert.deepEqual(updateSpy.getCall(0).args[0], [{
+                name: 'resume 1',
+                expectedHeaders: [1, 2, 3, 4]
+            }, {name: 'resume 2'}]);
+        });
+
+        it('should treat a single assignments list as an array w/ 1 assignments list in it', () => {
+            //setup
+            const assignments = {name: 'resume 1', expectedHeaders: [1, 2, 3, 4]};
+            //action
+            const resume = new Rezume({}, {}, assignments, null);
+            //assert
+            assert.equal(updateSpy.calledOnce, true);
+            assert.deepEqual(resume.assignmentsList, [{name: 'resume 1', expectedHeaders: [1, 2, 3, 4]}]);
+            assert.deepEqual(resume.assignments, {name: 'resume 1', expectedHeaders: [1, 2, 3, 4]});
+            assert.deepEqual(resume.expectedHeaders, [1, 2, 3, 4]);
+            assert.deepEqual(updateSpy.getCall(0).args[0], [{name: 'resume 1', expectedHeaders: [1, 2, 3, 4]}]);
+        });
+
+        it('should override the default resumeData if resumeData is set in displayed assignment', () => {
+            //setup
+            const assignments = {resumeData: {foo: 'baz', extra: 'field'}};
+            //action
+            const resume = new Rezume({}, {foo: 'bar', bar: false}, assignments, null);
+            //assert
+            assert.deepEqual(resume.resumeData, {foo: 'baz', bar: false, extra: 'field'});
+        });
+
+        it('should set _originalResumeData with initial resumeData without overrides', () => {
+            //setup
+            const assignments = {resumeData: {foo: 'baz', extra: 'field'}};
+            //action
+            const resume = new Rezume({}, {foo: 'bar', bar: false}, assignments, null);
+            //assert
+            assert.deepEqual(resume._originalResumeData, {foo: 'bar', bar: false});
+        })
+    });
+
+    describe('selectorChange', () => {
+        it('should update resumeData based on original values & new assignmentsList overrides', () => {
+            //setup
+            const assignments = [{resumeData: {foo: 'baz', extra: 'field'}}, {resumeData: {foo: 'bat', random: 42}}];
+            const resume = new Rezume({}, {foo: 'bar', bar: false}, assignments, null);
+            const getElementByIdStub = sinon.stub().returns({value: 0});
+            sinon.stub(resume, 'getDocument').returns({getElementById: getElementByIdStub});
+            resume.selectorChange();
+            getElementByIdStub.returns({value: 1});
+            //action
+            resume.selectorChange();
+            //assert
+            assert.deepEqual(resume.resumeData, {foo: 'bat', bar: false, random: 42});
         });
     });
 

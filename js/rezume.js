@@ -1,46 +1,62 @@
 'use strict';
+import _ from 'lodash';
+
 class Rezume {
     constructor(options, resumeData, assignments, document) {
         if (!resumeData) {
             throw new Error('You need to specify some resume data for all this to make sense');
         }
         this.options = options;
-        this.resumeData = resumeData;
-        this.expectedHeaders = ['twitter', 'github', 'email', 'name', 'position', 'addressLine1', 'addressLine2', 'phone', 'picture']
-        if (Array.isArray(assignments)) {
-            this.assignmentsList = assignments;
-            this.assignments = assignments[0];
-            this.updateCVSelector(assignments);
-        } else {
-            this.assignments = assignments;
+        this._originalResumeData = resumeData;
+
+        if (!Array.isArray(assignments)) {
+            assignments = [assignments];
+        }
+
+        this.assignmentsList = assignments;
+        this.assignments = assignments[0];
+        this.resumeData = _.merge({}, resumeData, assignments[0].resumeData);
+        this.expectedHeaders = assignments[0].expectedHeaders;
+        this.updateCVSelector(assignments, document);
+
+        if(!this.expectedHeaders){
+            this.expectedHeaders = ['twitter', 'github', 'email', 'name', 'addressLine1', 'addressLine2', 'position', 'phone', 'picture'];
         }
     }
 
+    getDocument() {
+        return document;
+    }
+
     selectorChange() {
-        const selectorValue = document.getElementById('cv_selector').value;
+        const currentDocument = this.getDocument();
+        const selectorValue = currentDocument.getElementById('cv_selector').value;
         this.assignments = this.assignmentsList[selectorValue];
-        this.render(document);
+        this.resumeData = _.merge({}, this._originalResumeData, this.assignmentsList[selectorValue].resumeData);
+        this.render(currentDocument);
     }
 
-    updateCVSelector(assignmentsArray) {
-        const selector = document.getElementById('cv_selector');
-        selector.setAttribute('style', 'display:block');
+    updateCVSelector(assignmentsArray, document) {
+        if(document){
+            const selector = document.getElementById('cv_selector');
+            selector.setAttribute('style', 'display:block');
 
-        assignmentsArray.forEach((assignmentsList, key) => {
-            const selectorOption = document.createElement('option');
-            selectorOption.setAttribute('value', key);
-            selectorOption.innerText = `Version ${assignmentsList.name || key}`;
-            selector.appendChild(selectorOption);
-        });
+            assignmentsArray.forEach((assignmentsList, key) => {
+                const selectorOption = document.createElement('option');
+                selectorOption.setAttribute('value', key);
+                selectorOption.innerText = `Version ${assignmentsList.name || key}`;
+                selector.appendChild(selectorOption);
+            });
+        }
     }
 
-    render(document) {
+    render() {
+        const document = this.getDocument();
         const resumeData = this.resumeData;
         const resumeOptions = this.options;
 
         document.title = resumeData.title;
         this.renderHeader(resumeData, document);
-        this.hideUnspecifiedHeaders(Object.keys(resumeData.header), document);
         this.renderAbout(document, resumeData.about);
         this.renderAcademic(document, resumeData);
         this.renderAssignments(document, resumeData, resumeOptions, 'relevant');
@@ -53,6 +69,11 @@ class Rezume {
     }
 
     renderAnnex(document, resumeData) {
+        if(!resumeData.annex){
+            document.getElementById('annexTitle').innerText = '';
+            document.getElementById('skillsTitle').innerText = '';
+            return;
+        }
         document.getElementById('annexTitle').innerText = resumeData.annex.title;
         document.getElementById('skillsTitle').innerText = resumeData.annex.skills.title;
         this.renderAnnexSkillsSection(document, resumeData, 'tech');
@@ -92,14 +113,21 @@ class Rezume {
     }
 
     renderAssignments(document, resumeData, resumeOptions, sectionIdPrefix) {
-        document.getElementById(`${sectionIdPrefix}AssignmentsTitle`).innerText = resumeData[`${sectionIdPrefix}Assignments`].title;
-        document.getElementById(`${sectionIdPrefix}AssignmentsComment`).innerText = resumeData[`${sectionIdPrefix}Assignments`].comment;
+        const resumeDataAssignmentsSection = resumeData[`${sectionIdPrefix}Assignments`];
+        if(!resumeDataAssignmentsSection){
+            document.getElementById(`${sectionIdPrefix}AssignmentsTitle`).innerText = '';
+            document.getElementById(`${sectionIdPrefix}AssignmentsComment`).innerText = '';
+            return;
+        }
+
+        document.getElementById(`${sectionIdPrefix}AssignmentsTitle`).innerText = resumeDataAssignmentsSection.title;
+        document.getElementById(`${sectionIdPrefix}AssignmentsComment`).innerText = resumeDataAssignmentsSection.comment;
 
         const relevantAssignmentsListContainer = document.getElementById(`${sectionIdPrefix}AssignmentsList`);
         relevantAssignmentsListContainer.innerHTML = '';
 
-        resumeData[`${sectionIdPrefix}Assignments`].list.forEach(assignmentName => {
-            if(this.assignments[assignmentName]){
+        resumeDataAssignmentsSection.list.forEach(assignmentName => {
+            if (this.assignments[assignmentName]) {
                 this.appendAssignmentToList(document, this.assignments[assignmentName], resumeOptions.showKeywords, relevantAssignmentsListContainer);
             }
         });
@@ -153,6 +181,11 @@ class Rezume {
     }
 
     renderAcademic(document, resumeData) {
+        if(!resumeData.academic){
+            document.getElementById('academicTitle').innerText = '';
+            document.getElementById('academic').innerHTML = '';
+            return;
+        }
         document.getElementById('academicTitle').innerText = resumeData.academicTitle;
         const academicContainer = document.getElementById('academic');
         academicContainer.innerHTML = '';
@@ -173,11 +206,23 @@ class Rezume {
     }
 
     renderAbout(document, aboutData) {
-        document.getElementById('aboutTitle').innerText = aboutData.title;
-        document.getElementById('aboutContents').innerHTML = aboutData.contents;
+        const aboutTitle = document.getElementById('aboutTitle');
+        const aboutContents = document.getElementById('aboutContents');
+        if(aboutData){
+            aboutTitle.innerText = aboutData.title;
+            aboutContents.innerHTML = aboutData.contents;
+        } else {
+            aboutTitle.innerText = '';
+            aboutContents.innerHTML = '';
+        }
     }
 
     renderHeader(resumeData, document) {
+        if(!resumeData.header){
+            return;
+        }
+        this.hideUnspecifiedHeaders(Object.keys(resumeData.header), document);
+
         Object.keys(resumeData.header).forEach((optionName) => {
                 if (optionName === 'picture') {
                     document.getElementById('picture').setAttribute('src', this.lookupPicture(resumeData.header['picture'], document));
@@ -200,13 +245,11 @@ class Rezume {
         );
     }
 
-    hideUnspecifiedHeaders(headersList, document) {
-        const headersToHide = this.expectedHeaders.filter((expectedHeader) => {
-            return headersList.indexOf(expectedHeader) < 0;
-        });
+    hideUnspecifiedHeaders(resumeDataHeaderElements, document) {
+        const validHeaders = _.intersection(this.expectedHeaders, resumeDataHeaderElements);
 
-        headersToHide.forEach((headerElementToHideId) => {
-            document.getElementById(`${headerElementToHideId}Container`).setAttribute('style', 'display:none');
+        validHeaders.forEach( validHeaderElement => {
+            document.getElementById(`${validHeaderElement}Container`).setAttribute('style', 'display:block');
         });
     }
 

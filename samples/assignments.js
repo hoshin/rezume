@@ -1,5 +1,8 @@
 var assignments = {
     name: 'English',
+    expectedHeaders: ['twitter', 'github', 'email', 'name', 'addressLine1', 'addressLine2', 'position', 'phone', 'picture'],
+    resumeData:{
+    },
     prestashop: {
         logo            : 'prestashop',
         logoAlt         : 'Prestashop',
