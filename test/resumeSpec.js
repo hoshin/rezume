@@ -107,7 +107,7 @@ describe('rezume', () => {
             rezume.renderAnnexBigSection(resumeData, 'foobar');
             //assert
             assert.equal(appendItemsToDOMListStub.calledOnce, true);
-            assert.deepEqual(appendItemsToDOMListStub.getCall(0).args, [['foobar item'], document, {
+            assert.deepEqual(appendItemsToDOMListStub.getCall(0).args, [['foobar item'], {
                 innerHTML: '',
                 some: 'element'
             }]);
@@ -162,7 +162,7 @@ describe('rezume', () => {
             rezume.renderAnnexSkillsSection(resumeData, 'foobar');
             //assert
             assert.equal(appendItemsToDOMListStub.calledOnce, true);
-            assert.deepEqual(appendItemsToDOMListStub.getCall(0).args, [['foobar item'], document, {
+            assert.deepEqual(appendItemsToDOMListStub.getCall(0).args, [['foobar item'], {
                 innerHTML: '',
                 some: 'element'
             }]);
@@ -360,9 +360,10 @@ describe('rezume', () => {
 
                 documentMock.expects('getElementById').withExactArgs(`${missingHeader}Container`).never();
                 documentMock.expects('getElementById').exactly(8).returns(headerElement);
+                sinon.stub(rezume, 'getDocument').returns(document);
 
                 //action
-                rezume.hideUnspecifiedHeaders(headersList, document);
+                rezume.hideUnspecifiedHeaders(headersList);
                 //assert
                 documentMock.verify();
                 assert.deepEqual(headerElement.setAttribute.getCall(0).args, ['style', 'display:block']);
@@ -581,7 +582,7 @@ describe('rezume', () => {
 
             //assert
             documentMock.verify();
-            assert.deepEqual(rezume.appendAssignmentToList.getCall(0).args, [document, {some: 'data'}, undefined, {innerHTML: ''}]);
+            assert.deepEqual(rezume.appendAssignmentToList.getCall(0).args, [{some: 'data'}, undefined, {innerHTML: ''}]);
         });
 
         it('should append 2 elements to the assignments list if configured assignments list has 2 elements', () => {
@@ -616,8 +617,8 @@ describe('rezume', () => {
             //assert
             documentMock.verify();
             assert.equal(rezume.appendAssignmentToList.calledTwice, true);
-            assert.deepEqual(rezume.appendAssignmentToList.getCall(0).args, [document, {some: 'data'}, undefined, {innerHTML: ''}]);
-            assert.deepEqual(rezume.appendAssignmentToList.getCall(1).args, [document, {some: 'data again'}, undefined, {innerHTML: ''}]);
+            assert.deepEqual(rezume.appendAssignmentToList.getCall(0).args, [{some: 'data'}, undefined, {innerHTML: ''}]);
+            assert.deepEqual(rezume.appendAssignmentToList.getCall(1).args, [{some: 'data again'}, undefined, {innerHTML: ''}]);
         });
 
         it('should not render assignments section if nothing relevant to render', () => {
@@ -781,7 +782,7 @@ describe('rezume', () => {
             rezume.render();
             //assert
             assert.equal(rezume.renderAssignments.calledTwice, true);
-            assert.equal(rezume.renderAssignments.getCall(1).args[3], 'other');
+            assert.equal(rezume.renderAssignments.getCall(1).args[2], 'other');
             assert.equal(otherAssignmentsList.setAttribute.calledOnce, true);
             assert.equal(otherAssignmentsList.setAttribute.calledWithExactly('style', 'display:block'), true);
             assert.equal(otherAssignments.setAttribute.calledOnce, true);
@@ -832,8 +833,10 @@ describe('rezume', () => {
                 }
             });
             documentMock.expects('createElement').withExactArgs('p').returns(assignmentDuration);
+            sinon.stub(rezume, 'getDocument').returns(document);
+
             //action
-            rezume.createAssignmentLogoFrame(document, {logo: 'foo', logoAlt: 'bar', duration: 'baz'});
+            rezume.createAssignmentLogoFrame({logo: 'foo', logoAlt: 'bar', duration: 'baz'});
             //assert
             assert.deepEqual(assignmentLogoTime.setAttribute.calledOnce, true);
             assert.deepEqual(assignmentLogoTime.setAttribute.getCall(0).args, ['class', 'mission-logo-time']);
@@ -867,8 +870,10 @@ describe('rezume', () => {
             documentMock.expects('createElement').withExactArgs('img').returns(assignmentImage);
             documentMock.expects('getElementById').withExactArgs('foo').returns(null);
             documentMock.expects('createElement').withExactArgs('p').returns(assignmentDuration);
+            sinon.stub(rezume, 'getDocument').returns(document);
+
             //action
-            rezume.createAssignmentLogoFrame(document, {logo: 'foo', logoAlt: 'bar', duration: 'baz'});
+            rezume.createAssignmentLogoFrame({logo: 'foo', logoAlt: 'bar', duration: 'baz'});
             //assert
             assert.deepEqual(assignmentImage.setAttribute.calledTwice, true);
             assert.deepEqual(assignmentImage.setAttribute.getCall(0).args, ['src', '']);
@@ -893,9 +898,10 @@ describe('rezume', () => {
             documentMock.expects('createElement').withExactArgs('div').returns(assignmentDescription);
             documentMock.expects('createElement').withExactArgs('h2').returns(descriptionTitle);
             documentMock.expects('createElement').withExactArgs('p').returns(descriptionParagraph);
+            sinon.stub(rezume, 'getDocument').returns(document);
 
             //action
-            rezume.createAssignmentDescription(document, assignment);
+            rezume.createAssignmentDescription(assignment);
             //assert
             assert.deepEqual(assignmentDescription.appendChild.calledTwice, true);
             assert.deepEqual(assignmentDescription.appendChild.getCall(0).args, [descriptionTitle]);
@@ -924,9 +930,10 @@ describe('rezume', () => {
             const paragraphMock = documentMock.expects('createElement').withExactArgs('p').twice();
             paragraphMock.onCall(0).returns(descriptionParagraph);
             paragraphMock.onCall(1).returns(keywords);
+            sinon.stub(rezume, 'getDocument').returns(document);
 
             //action
-            rezume.createAssignmentDescription(document, assignment, true);
+            rezume.createAssignmentDescription(assignment, true);
             //assert
             assert.equal(assignmentDescription.appendChild.calledThrice, true);
             assert.deepEqual(assignmentDescription.appendChild.getCall(2).args, [keywords]);
@@ -950,9 +957,10 @@ describe('rezume', () => {
             rezume.createAssignmentDescription = sinon.spy();
             rezume.createAssignmentLogoFrame = sinon.spy();
             const assignment = {assignment: 'data'};
+            sinon.stub(rezume, 'getDocument').returns(document);
 
             //action
-            rezume.appendAssignmentToList(document, assignment, false, topLevelContainer);
+            rezume.appendAssignmentToList(assignment, false, topLevelContainer);
             //assert
             assert.equal(rezume.createAssignmentDescription.calledOnce, true);
             assert.equal(rezume.createAssignmentLogoFrame.calledOnce, true);
@@ -963,8 +971,8 @@ describe('rezume', () => {
 
             assert.deepEqual(rezume.createAssignmentDescription.calledOnce, true);
             assert.deepEqual(rezume.createAssignmentLogoFrame.calledOnce, true);
-            assert.deepEqual(rezume.createAssignmentDescription.getCall(0).args, [document, assignment, false]);
-            assert.deepEqual(rezume.createAssignmentLogoFrame.getCall(0).args, [document, assignment]);
+            assert.deepEqual(rezume.createAssignmentDescription.getCall(0).args, [assignment, false]);
+            assert.deepEqual(rezume.createAssignmentLogoFrame.getCall(0).args, [assignment]);
         });
     });
 
@@ -1068,7 +1076,9 @@ describe('rezume', () => {
 
     describe('lookupPicture', () => {
         it('should return the location passed as parameter if it is a URL', () => {
-            //setup / action
+            //setup
+            sinon.stub(rezume, 'getDocument').returns({});
+            //action
             const actual = rezume.lookupPicture('http://foo.bar');
             //assert
             assert.equal(actual, 'http://foo.bar');
@@ -1089,8 +1099,10 @@ describe('rezume', () => {
 
             documentMock.expects('getElementById').withExactArgs('foo').once().returns(picture);
             pictureMock.expects('getAttribute').withExactArgs('src').once().returns('some embedded picture data');
+            sinon.stub(rezume, 'getDocument').returns(document);
+
             //action
-            const actual = rezume.lookupPicture('foo', document);
+            const actual = rezume.lookupPicture('foo');
             //assert
             assert.equal(actual, 'some embedded picture data');
             documentMock.verify();
@@ -1106,8 +1118,10 @@ describe('rezume', () => {
             const documentMock = sinon.mock(document);
 
             documentMock.expects('getElementById').withExactArgs('foo').once().returns(null);
+            sinon.stub(rezume, 'getDocument').returns(document);
+
             //action
-            const actual = rezume.lookupPicture('foo', document);
+            const actual = rezume.lookupPicture('foo');
             //assert
             assert.equal(actual, '');
             documentMock.verify();

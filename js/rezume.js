@@ -92,7 +92,7 @@ class Rezume {
 
         if (targetSectionList) {
             targetSectionList.innerHTML = '';
-            this.appendItemsToDOMList(resumeData.annex[sectionName].list, document, targetSectionList);
+            this.appendItemsToDOMList(resumeData.annex[sectionName].list, targetSectionList);
         }
     }
 
@@ -112,7 +112,7 @@ class Rezume {
 
         if (otherSkillsList) {
             otherSkillsList.innerHTML = '';
-            this.appendItemsToDOMList(resumeData.annex.skills[skillSectionName].list, document, otherSkillsList);
+            this.appendItemsToDOMList(resumeData.annex.skills[skillSectionName].list, otherSkillsList);
         }
     }
 
@@ -133,21 +133,23 @@ class Rezume {
 
         resumeDataAssignmentsSection.list.forEach(assignmentName => {
             if (this.assignments[assignmentName]) {
-                this.appendAssignmentToList(document, this.assignments[assignmentName], resumeOptions.showKeywords, relevantAssignmentsListContainer);
+                this.appendAssignmentToList(this.assignments[assignmentName], resumeOptions.showKeywords, relevantAssignmentsListContainer);
             }
         });
     }
 
-    appendAssignmentToList(document, assignment, showKeywords, relevantAssignmentsListContainer) {
+    appendAssignmentToList(assignment, showKeywords, relevantAssignmentsListContainer) {
+        const document = this.getDocument();
         const assignmentContainer = document.createElement('div');
         assignmentContainer.setAttribute('class', 'mission');
 
-        assignmentContainer.appendChild(this.createAssignmentLogoFrame(document, assignment));
-        assignmentContainer.appendChild(this.createAssignmentDescription(document, assignment, showKeywords));
+        assignmentContainer.appendChild(this.createAssignmentLogoFrame(assignment));
+        assignmentContainer.appendChild(this.createAssignmentDescription(assignment, showKeywords));
         relevantAssignmentsListContainer.appendChild(assignmentContainer);
     }
 
-    createAssignmentDescription(document, assignment, showKeywords) {
+    createAssignmentDescription(assignment, showKeywords) {
+        const document = this.getDocument();
         const assignmentDescription = document.createElement('div');
         assignmentDescription.setAttribute('class', 'mission-desc');
 
@@ -170,12 +172,14 @@ class Rezume {
         return assignmentDescription;
     }
 
-    createAssignmentLogoFrame(document, assignment) {
+    createAssignmentLogoFrame(assignment) {
+        const document = this.getDocument();
+
         const assignmentLogoTime = document.createElement('div');
         assignmentLogoTime.setAttribute('class', 'mission-logo-time');
         const assignmentImage = document.createElement('img');
 
-        assignmentImage.setAttribute('src', this.lookupPicture(assignment.logo, document));
+        assignmentImage.setAttribute('src', this.lookupPicture(assignment.logo));
         assignmentImage.setAttribute('alt', assignment.logoAlt);
         const assignmentDuration = document.createElement('p');
         assignmentDuration.innerText = assignment.duration;
@@ -229,11 +233,11 @@ class Rezume {
         if(!resumeData.header){
             return;
         }
-        this.hideUnspecifiedHeaders(Object.keys(resumeData.header), document);
+        this.hideUnspecifiedHeaders(Object.keys(resumeData.header));
 
         Object.keys(resumeData.header).forEach((optionName) => {
                 if (optionName === 'picture') {
-                    document.getElementById('picture').setAttribute('src', this.lookupPicture(resumeData.header['picture'], document));
+                    document.getElementById('picture').setAttribute('src', this.lookupPicture(resumeData.header['picture']));
                 } else if (optionName === 'twitter') {
                     const twitterElement = document.getElementById(optionName);
                     twitterElement.innerText = '@' + resumeData.header[optionName];
@@ -253,7 +257,8 @@ class Rezume {
         );
     }
 
-    hideUnspecifiedHeaders(resumeDataHeaderElements, document) {
+    hideUnspecifiedHeaders(resumeDataHeaderElements) {
+        const document = this.getDocument();
         const validHeaders = _.intersection(this.expectedHeaders, resumeDataHeaderElements);
 
         validHeaders.forEach( validHeaderElement => {
@@ -261,7 +266,9 @@ class Rezume {
         });
     }
 
-    lookupPicture(location, document) {
+    lookupPicture(location) {
+        const document = this.getDocument();
+
         if (location.match(/^(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!10(?:\.\d{1,3}){3})(?!127(?:\.\d{1,3}){3})(?!169\.254(?:\.\d{1,3}){2})(?!192\.168(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z0-9]+-?)*[a-z0-9]+)(?:\.(?:[a-z0-9]+-?)*[a-z0-9]+)*(?:\.(?:[a-z]{2,})))(?::\d{2,5})?(?:\/[^\s]*)?$/)) {
             return location;
         } else {
