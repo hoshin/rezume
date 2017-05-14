@@ -23,9 +23,10 @@ describe('rezume', () => {
             };
             const documentMock = sinon.mock(document);
             documentMock.expects('createElement').withArgs('li').once().returns(foobarItem);
+            sinon.stub(rezume, 'getDocument').returns(document);
 
             //action
-            rezume.appendItemsToDOMList(['foobar item'], document, foobarList);
+            rezume.appendItemsToDOMList(['foobar item'], foobarList);
             //assert
             documentMock.verify();
             assert.equal(foobarItem.innerHTML, 'foobar item');
@@ -51,9 +52,10 @@ describe('rezume', () => {
             const createElementCallMocks = documentMock.expects('createElement').withArgs('li').twice();
             createElementCallMocks.onCall(0).returns(foobarItem);
             createElementCallMocks.onCall(1).returns(anotherItem);
+            sinon.stub(rezume, 'getDocument').returns(document);
 
             //action
-            rezume.appendItemsToDOMList(['foobar item', 'another item'], document, foobarList);
+            rezume.appendItemsToDOMList(['foobar item', 'another item'], foobarList);
             //assert
             documentMock.verify();
             assert.equal(foobarItem.innerHTML, 'foobar item');
@@ -79,8 +81,10 @@ describe('rezume', () => {
             getElementByIdMock.expects('getElementById').withArgs('foobarList').once().returns(null);
 
             getElementByIdMock.expects('getElementById').withArgs('foobarTitle').once().returns(foobarTitleElement);
+            sinon.stub(rezume, 'getDocument').returns(document);
+
             //action
-            rezume.renderAnnexBigSection(document, resumeData, 'foobar');
+            rezume.renderAnnexBigSection(resumeData, 'foobar');
             //assert
             assert.equal(foobarTitleElement.innerText, 'foo');
             getElementByIdMock.verify();
@@ -97,9 +101,10 @@ describe('rezume', () => {
             const appendItemsToDOMListStub = sinon.stub(rezume, 'appendItemsToDOMList').returns();
 
             const resumeData = {annex: {baz: {list: ['not the right list']}, foobar: {list: ['foobar item']}}};
+            sinon.stub(rezume, 'getDocument').returns(document);
 
             //action
-            rezume.renderAnnexBigSection(document, resumeData, 'foobar');
+            rezume.renderAnnexBigSection(resumeData, 'foobar');
             //assert
             assert.equal(appendItemsToDOMListStub.calledOnce, true);
             assert.deepEqual(appendItemsToDOMListStub.getCall(0).args, [['foobar item'], document, {
@@ -124,8 +129,10 @@ describe('rezume', () => {
             getElementByIdMock.expects('getElementById').withArgs('foobarSkillsList').once().returns(null);
 
             getElementByIdMock.expects('getElementById').withArgs('foobarSkillsTitle').once().returns(foobarTitleElement);
+            sinon.stub(rezume, 'getDocument').returns(document);
+
             //action
-            rezume.renderAnnexSkillsSection(document, resumeData, 'foobar');
+            rezume.renderAnnexSkillsSection(resumeData, 'foobar');
             //assert
             assert.equal(foobarTitleElement.innerText, 'foo');
             getElementByIdMock.verify();
@@ -149,9 +156,10 @@ describe('rezume', () => {
                     }
                 }
             };
+            sinon.stub(rezume, 'getDocument').returns(document);
 
             //action
-            rezume.renderAnnexSkillsSection(document, resumeData, 'foobar');
+            rezume.renderAnnexSkillsSection(resumeData, 'foobar');
             //assert
             assert.equal(appendItemsToDOMListStub.calledOnce, true);
             assert.deepEqual(appendItemsToDOMListStub.getCall(0).args, [['foobar item'], document, {
@@ -176,9 +184,10 @@ describe('rezume', () => {
 
             getElementByIdMock.expects('getElementById').withArgs('academic').returns(academicContainer);
             getElementByIdMock.expects('getElementById').withArgs('academicTitle').returns(title);
+            sinon.stub(rezume, 'getDocument').returns(document);
 
             //action
-            rezume.renderAcademic(document, resumeData);
+            rezume.renderAcademic(resumeData);
             //assert
             assert.equal(document.createElement.called, false);
             assert.equal(academicContainer.appendChild.called, false);
@@ -232,9 +241,10 @@ describe('rezume', () => {
             const createSpanMockCall = documentMock.expects('createElement').withArgs('span').returns(academicContainer).twice();
             createSpanMockCall.onCall(0).returns(firstSpan);
             createSpanMockCall.onCall(1).returns(secondSpan);
+            sinon.stub(rezume, 'getDocument').returns(document);
 
             //action
-            rezume.renderAcademic(document, resumeData);
+            rezume.renderAcademic(resumeData);
             //assert
             assert.equal(academicContainer.appendChild.calledTwice, true);
             documentMock.verify();
@@ -260,9 +270,10 @@ describe('rezume', () => {
             const documentMock = sinon.mock(document);
             documentMock.expects('getElementById').withArgs('academic').once().returns(academicContainer);
             documentMock.expects('getElementById').withArgs('academicTitle').once().returns(academicTitle);
+            sinon.stub(rezume, 'getDocument').returns(document);
 
             //action
-            rezume.renderAcademic(document, {});
+            rezume.renderAcademic({});
 
             //assert
             assert.equal(academicTitle.innerText, '');
@@ -285,8 +296,10 @@ describe('rezume', () => {
             const documentMock = sinon.mock(document);
             documentMock.expects('getElementById').withArgs('aboutTitle').returns(aboutTitle);
             documentMock.expects('getElementById').withArgs('aboutContents').returns(aboutContents);
+            sinon.stub(rezume, 'getDocument').returns(document);
+
             //action
-            rezume.renderAbout(document, aboutData);
+            rezume.renderAbout(aboutData);
             //assert
             assert.equal(aboutTitle.innerText, 'foo');
             assert.equal(aboutContents.innerHTML, 'bar');
@@ -305,8 +318,10 @@ describe('rezume', () => {
             const documentMock = sinon.mock(document);
             documentMock.expects('getElementById').withArgs('aboutTitle').returns(aboutTitle);
             documentMock.expects('getElementById').withArgs('aboutContents').returns(aboutContents);
+            sinon.stub(rezume, 'getDocument').returns(document);
+
             //action
-            rezume.renderAbout(document);
+            rezume.renderAbout();
             //assert
             assert.equal(aboutTitle.innerText, '');
             assert.equal(aboutContents.innerHTML, '');
@@ -375,9 +390,10 @@ describe('rezume', () => {
                 }
             });
             sinon.stub(rezume, 'hideUnspecifiedHeaders');
+            sinon.stub(rezume, 'getDocument').returns(document);
 
             //action
-            rezume.renderHeader(resumeData, document);
+            rezume.renderHeader(resumeData);
             //assert
             assert.equal(setAttributeSpy.calledOnce, true);
             assert.equal(setAttributeSpy.calledWithExactly('src', 'picture-src'), true);
@@ -398,9 +414,11 @@ describe('rezume', () => {
             const documentMock = sinon.mock(document);
             documentMock.expects('getElementById').withExactArgs('twitter').returns(twitterElement);
             sinon.stub(rezume, 'hideUnspecifiedHeaders');
+            sinon.stub(rezume, 'getDocument').returns(document);
+
 
             //action
-            rezume.renderHeader(resumeData, document);
+            rezume.renderHeader(resumeData);
             //assert
             assert.equal(setAttributeSpy.calledWithExactly('href', 'https://twitter.com/foo'), true);
             assert.equal(twitterElement.innerText, '@foo');
@@ -420,9 +438,10 @@ describe('rezume', () => {
             const documentMock = sinon.mock(document);
             documentMock.expects('getElementById').withExactArgs('github').returns(githubElement);
             sinon.stub(rezume, 'hideUnspecifiedHeaders');
+            sinon.stub(rezume, 'getDocument').returns(document);
 
             //action
-            rezume.renderHeader(resumeData, document);
+            rezume.renderHeader(resumeData);
             //assert
             assert.equal(setAttributeSpy.calledWithExactly('href', 'https://github.com/foo'), true);
             assert.equal(githubElement.innerText, 'https://github.com/foo');
@@ -442,9 +461,10 @@ describe('rezume', () => {
             const documentMock = sinon.mock(document);
             documentMock.expects('getElementById').withExactArgs('email').returns(emailElement);
             sinon.stub(rezume, 'hideUnspecifiedHeaders');
+            sinon.stub(rezume, 'getDocument').returns(document);
 
             //action
-            rezume.renderHeader(resumeData, document);
+            rezume.renderHeader(resumeData);
             //assert
             assert.equal(setAttributeSpy.calledWithExactly('href', 'mailto:mail@foo.bar'), true);
             assert.equal(emailElement.innerText, 'mail@foo.bar');
@@ -462,9 +482,10 @@ describe('rezume', () => {
 
             const documentMock = sinon.mock(document);
             documentMock.expects('getElementById').withExactArgs('random').returns(randomElement);
+            sinon.stub(rezume, 'getDocument').returns(document);
 
             //action
-            rezume.renderHeader(resumeData, document);
+            rezume.renderHeader(resumeData);
             //assert
             assert.equal(randomElement.innerHTML, 'some random data');
         });
@@ -483,9 +504,10 @@ describe('rezume', () => {
             const documentMock = sinon.mock(document);
             documentMock.expects('getElementById').withExactArgs('random').returns(randomElement);
             documentMock.expects('getElementById').withExactArgs('moreRandom').returns(moreRandomElement);
+            sinon.stub(rezume, 'getDocument').returns(document);
 
             //action
-            rezume.renderHeader(resumeData, document);
+            rezume.renderHeader(resumeData);
             //assert
             assert.equal(randomElement.innerHTML, 'some random data');
             assert.equal(moreRandomElement.innerHTML, 'another property');
@@ -497,9 +519,10 @@ describe('rezume', () => {
             const document = {
                 getElementById: getElementSpy
             };
+            sinon.stub(rezume, 'getDocument').returns(document);
 
             //action
-            rezume.renderHeader({}, document);
+            rezume.renderHeader({});
             //assert
             assert.equal(getElementSpy.callCount, 0);
         });
@@ -521,9 +544,10 @@ describe('rezume', () => {
             documentMock.expects('getElementById').withExactArgs('relevantAssignmentsComment').once().returns(comment);
             documentMock.expects('getElementById').withExactArgs('relevantAssignmentsList').once().returns({});
             rezume.appendAssignmentToList = sinon.spy();
+            sinon.stub(rezume, 'getDocument').returns(document);
 
             //action
-            rezume.renderAssignments(document, resumeData, {}, 'relevant');
+            rezume.renderAssignments(resumeData, {}, 'relevant');
             //assert
             assert.equal(title.innerText, 'new title');
             assert.equal(comment.innerText, 'new comment');
@@ -550,8 +574,10 @@ describe('rezume', () => {
             documentMock.expects('getElementById').withExactArgs('relevantAssignmentsComment').once().returns(comment);
             documentMock.expects('getElementById').withExactArgs('relevantAssignmentsList').once().returns({});
             rezume.appendAssignmentToList = sinon.spy();
+            sinon.stub(rezume, 'getDocument').returns(document);
+
             //action
-            rezume.renderAssignments(document, resumeData, {}, 'relevant');
+            rezume.renderAssignments(resumeData, {}, 'relevant');
 
             //assert
             documentMock.verify();
@@ -582,8 +608,10 @@ describe('rezume', () => {
             documentMock.expects('getElementById').withExactArgs('relevantAssignmentsComment').once().returns(comment);
             documentMock.expects('getElementById').withExactArgs('relevantAssignmentsList').once().returns({});
             rezume.appendAssignmentToList = sinon.spy();
+            sinon.stub(rezume, 'getDocument').returns(document);
+
             //action
-            rezume.renderAssignments(document, resumeData, {}, 'relevant');
+            rezume.renderAssignments(resumeData, {}, 'relevant');
 
             //assert
             documentMock.verify();
@@ -605,9 +633,10 @@ describe('rezume', () => {
 
             documentMock.expects('getElementById').withExactArgs('relevantAssignmentsTitle').once().returns(title);
             documentMock.expects('getElementById').withExactArgs('relevantAssignmentsComment').once().returns(comment);
+            sinon.stub(rezume, 'getDocument').returns(document);
 
             //action
-            rezume.renderAssignments(document, {}, {}, 'relevant');
+            rezume.renderAssignments({}, {}, 'relevant');
             //assert
             documentMock.verify();
             assert.equal(title.innerText, '');
@@ -630,18 +659,19 @@ describe('rezume', () => {
 
             rezume.renderAnnexBigSection = sinon.spy();
             rezume.renderAnnexSkillsSection = sinon.spy();
+            sinon.stub(rezume, 'getDocument').returns(document);
             //action
-            rezume.renderAnnex(document, {annex: {skills: {}}});
+            rezume.renderAnnex({annex: {skills: {}}});
             //assert
             assert.equal(rezume.renderAnnexBigSection.calledTwice, true);
-            assert.equal(rezume.renderAnnexBigSection.getCall(0).args[2], ['publications']);
-            assert.equal(rezume.renderAnnexBigSection.getCall(1).args[2], ['misc']);
+            assert.equal(rezume.renderAnnexBigSection.getCall(0).args[1], ['publications']);
+            assert.equal(rezume.renderAnnexBigSection.getCall(1).args[1], ['misc']);
 
             assert.equal(rezume.renderAnnexSkillsSection.callCount, 4);
-            assert.equal(rezume.renderAnnexSkillsSection.getCall(0).args[2], ['tech']);
-            assert.equal(rezume.renderAnnexSkillsSection.getCall(1).args[2], ['architecture']);
-            assert.equal(rezume.renderAnnexSkillsSection.getCall(2).args[2], ['methodologies']);
-            assert.equal(rezume.renderAnnexSkillsSection.getCall(3).args[2], ['other']);
+            assert.equal(rezume.renderAnnexSkillsSection.getCall(0).args[1], ['tech']);
+            assert.equal(rezume.renderAnnexSkillsSection.getCall(1).args[1], ['architecture']);
+            assert.equal(rezume.renderAnnexSkillsSection.getCall(2).args[1], ['methodologies']);
+            assert.equal(rezume.renderAnnexSkillsSection.getCall(3).args[1], ['other']);
         });
 
         it('should set annex titles of the section based on resumeData contents', () => {
@@ -658,8 +688,10 @@ describe('rezume', () => {
 
             rezume.renderAnnexBigSection = sinon.spy();
             rezume.renderAnnexSkillsSection = sinon.spy();
+            sinon.stub(rezume, 'getDocument').returns(document);
+
             //action
-            rezume.renderAnnex(document, {annex: {skills: {title: 'annex skills title'}, title: 'annex title'}});
+            rezume.renderAnnex({annex: {skills: {title: 'annex skills title'}, title: 'annex title'}});
             //assert
             assert.equal(annexTitle.innerText, 'annex title');
             assert.equal(annexSkillsTitle.innerText, 'annex skills title');
@@ -679,8 +711,10 @@ describe('rezume', () => {
 
             rezume.renderAnnexBigSection = sinon.spy();
             rezume.renderAnnexSkillsSection = sinon.spy();
+            sinon.stub(rezume, 'getDocument').returns(document);
+
             //action
-            rezume.renderAnnex(document, {});
+            rezume.renderAnnex({});
             //assert
             documentMock.verify();
             assert.equal(annexTitle.innerText, '');
@@ -713,7 +747,7 @@ describe('rezume', () => {
             rezume.render();
             //assert
             assert.equal(rezume.renderAssignments.calledOnce, true);
-            assert.equal(rezume.renderAssignments.getCall(0).args[3], 'relevant');
+            assert.equal(rezume.renderAssignments.getCall(0).args[2], 'relevant');
             assert.equal(rezume.renderHeader.calledOnce, true);
             assert.equal(rezume.renderAbout.calledOnce, true);
             assert.equal(rezume.renderAcademic.calledOnce, true);

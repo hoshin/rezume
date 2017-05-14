@@ -56,19 +56,20 @@ class Rezume {
         const resumeOptions = this.options;
 
         document.title = resumeData.title;
-        this.renderHeader(resumeData, document);
-        this.renderAbout(document, resumeData.about);
-        this.renderAcademic(document, resumeData);
-        this.renderAssignments(document, resumeData, resumeOptions, 'relevant');
+        this.renderHeader(resumeData);
+        this.renderAbout(resumeData.about);
+        this.renderAcademic(resumeData);
+        this.renderAssignments(resumeData, resumeOptions, 'relevant');
         if (resumeOptions.showOtherAssignments) {
             document.getElementById('otherAssignmentsList').setAttribute('style', 'display:block');
             document.getElementById('otherAssignments').setAttribute('style', 'display:block');
-            this.renderAssignments(document, resumeData, resumeOptions, 'other')
+            this.renderAssignments(resumeData, resumeOptions, 'other')
         }
-        this.renderAnnex(document, resumeData);
+        this.renderAnnex(resumeData);
     }
 
-    renderAnnex(document, resumeData) {
+    renderAnnex(resumeData) {
+        const document = this.getDocument();
         if(!resumeData.annex){
             document.getElementById('annexTitle').innerText = '';
             document.getElementById('skillsTitle').innerText = '';
@@ -76,15 +77,16 @@ class Rezume {
         }
         document.getElementById('annexTitle').innerText = resumeData.annex.title;
         document.getElementById('skillsTitle').innerText = resumeData.annex.skills.title;
-        this.renderAnnexSkillsSection(document, resumeData, 'tech');
-        this.renderAnnexSkillsSection(document, resumeData, 'architecture');
-        this.renderAnnexSkillsSection(document, resumeData, 'methodologies');
-        this.renderAnnexSkillsSection(document, resumeData, 'other');
-        this.renderAnnexBigSection(document, resumeData, 'publications');
-        this.renderAnnexBigSection(document, resumeData, 'misc');
+        this.renderAnnexSkillsSection(resumeData, 'tech');
+        this.renderAnnexSkillsSection(resumeData, 'architecture');
+        this.renderAnnexSkillsSection(resumeData, 'methodologies');
+        this.renderAnnexSkillsSection(resumeData, 'other');
+        this.renderAnnexBigSection(resumeData, 'publications');
+        this.renderAnnexBigSection(resumeData, 'misc');
     }
 
-    renderAnnexBigSection(document, resumeData, sectionName) {
+    renderAnnexBigSection(resumeData, sectionName) {
+        const document = this.getDocument();
         document.getElementById(sectionName + 'Title').innerText = resumeData.annex[sectionName].title;
         const targetSectionList = document.getElementById(sectionName + 'List');
 
@@ -94,7 +96,8 @@ class Rezume {
         }
     }
 
-    appendItemsToDOMList(skillsFromResumeData, document, DOMElementToAppendTo) {
+    appendItemsToDOMList(skillsFromResumeData, DOMElementToAppendTo) {
+        const document = this.getDocument();
         skillsFromResumeData.forEach((skill) => {
             const otherSkillItem = document.createElement('li');
             otherSkillItem.innerHTML = skill;
@@ -102,7 +105,8 @@ class Rezume {
         });
     }
 
-    renderAnnexSkillsSection(document, resumeData, skillSectionName) {
+    renderAnnexSkillsSection(resumeData, skillSectionName) {
+        const document = this.getDocument();
         document.getElementById(skillSectionName + 'SkillsTitle').innerText = resumeData.annex.skills[skillSectionName].title;
         const otherSkillsList = document.getElementById(skillSectionName + 'SkillsList');
 
@@ -112,7 +116,8 @@ class Rezume {
         }
     }
 
-    renderAssignments(document, resumeData, resumeOptions, sectionIdPrefix) {
+    renderAssignments(resumeData, resumeOptions, sectionIdPrefix) {
+        const document = this.getDocument();
         const resumeDataAssignmentsSection = resumeData[`${sectionIdPrefix}Assignments`];
         if(!resumeDataAssignmentsSection){
             document.getElementById(`${sectionIdPrefix}AssignmentsTitle`).innerText = '';
@@ -180,7 +185,8 @@ class Rezume {
         return assignmentLogoTime;
     }
 
-    renderAcademic(document, resumeData) {
+    renderAcademic(resumeData) {
+        const document = this.getDocument();
         if(!resumeData.academic){
             document.getElementById('academicTitle').innerText = '';
             document.getElementById('academic').innerHTML = '';
@@ -205,7 +211,8 @@ class Rezume {
         });
     }
 
-    renderAbout(document, aboutData) {
+    renderAbout(aboutData) {
+        const document = this.getDocument();
         const aboutTitle = document.getElementById('aboutTitle');
         const aboutContents = document.getElementById('aboutContents');
         if(aboutData){
@@ -217,7 +224,8 @@ class Rezume {
         }
     }
 
-    renderHeader(resumeData, document) {
+    renderHeader(resumeData) {
+        const document = this.getDocument();
         if(!resumeData.header){
             return;
         }
