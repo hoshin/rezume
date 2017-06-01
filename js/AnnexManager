@@ -1,0 +1,53 @@
+'use strict';
+import utils from './utils'
+
+class AnnexManager {
+    renderAnnex(resumeData) {
+        const document = utils.getDocument();
+        if (!resumeData.annex) {
+            document.getElementById('annexTitle').innerText = '';
+            document.getElementById('skillsTitle').innerText = '';
+            return;
+        }
+        document.getElementById('annexTitle').innerText = resumeData.annex.title;
+        document.getElementById('skillsTitle').innerText = resumeData.annex.skills.title;
+        this.renderAnnexSkillsSection(resumeData, 'tech');
+        this.renderAnnexSkillsSection(resumeData, 'architecture');
+        this.renderAnnexSkillsSection(resumeData, 'methodologies');
+        this.renderAnnexSkillsSection(resumeData, 'other');
+        this.renderAnnexBigSection(resumeData, 'publications');
+        this.renderAnnexBigSection(resumeData, 'misc');
+    }
+
+    renderAnnexBigSection(resumeData, sectionName) {
+        const document = utils.getDocument();
+        document.getElementById(sectionName + 'Title').innerText = resumeData.annex[sectionName].title;
+        const targetSectionList = document.getElementById(sectionName + 'List');
+
+        if (targetSectionList) {
+            targetSectionList.innerHTML = '';
+            this.appendItemsToDOMList(resumeData.annex[sectionName].list, targetSectionList);
+        }
+    }
+
+    renderAnnexSkillsSection(resumeData, skillSectionName) {
+        const document = utils.getDocument();
+        document.getElementById(skillSectionName + 'SkillsTitle').innerText = resumeData.annex.skills[skillSectionName].title;
+        const otherSkillsList = document.getElementById(skillSectionName + 'SkillsList');
+
+        if (otherSkillsList) {
+            otherSkillsList.innerHTML = '';
+            this.appendItemsToDOMList(resumeData.annex.skills[skillSectionName].list, otherSkillsList);
+        }
+    }
+
+    appendItemsToDOMList(skillsFromResumeData, DOMElementToAppendTo) {
+        skillsFromResumeData.forEach((skill) => {
+            const otherSkillItem = utils.getDocument().createElement('li');
+            otherSkillItem.innerHTML = skill;
+            DOMElementToAppendTo.appendChild(otherSkillItem);
+        });
+    };
+}
+
+export default AnnexManager;
