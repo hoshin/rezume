@@ -4,19 +4,26 @@ import utils from './utils'
 class AnnexManager {
     renderAnnex(resumeData) {
         const document = utils.getDocument();
-        if (!resumeData.annex) {
+        const annexData = resumeData.annex;
+        if (!annexData || !annexData.title) {
             document.getElementById('annexTitle').innerText = '';
             document.getElementById('skillsTitle').innerText = '';
             return;
         }
-        document.getElementById('annexTitle').innerText = resumeData.annex.title;
-        document.getElementById('skillsTitle').innerText = resumeData.annex.skills.title;
-        this.renderAnnexSkillsSection(resumeData, 'tech');
-        this.renderAnnexSkillsSection(resumeData, 'architecture');
-        this.renderAnnexSkillsSection(resumeData, 'methodologies');
-        this.renderAnnexSkillsSection(resumeData, 'other');
-        this.renderAnnexBigSection(resumeData, 'publications');
-        this.renderAnnexBigSection(resumeData, 'misc');
+        document.getElementById('annexTitle').innerText = annexData.title;
+        if(annexData.skills){
+            document.getElementById('skillsTitle').innerText = annexData.skills.title;
+            this.renderAnnexSkillsSection(resumeData, 'tech');
+            this.renderAnnexSkillsSection(resumeData, 'architecture');
+            this.renderAnnexSkillsSection(resumeData, 'methodologies');
+            this.renderAnnexSkillsSection(resumeData, 'other');
+        }
+        if(annexData.publications){
+            this.renderAnnexBigSection(resumeData, 'publications');
+        }
+        if(annexData.misc){
+            this.renderAnnexBigSection(resumeData, 'misc');
+        }
     }
 
     renderAnnexBigSection(resumeData, sectionName) {

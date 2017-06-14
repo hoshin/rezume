@@ -7,7 +7,9 @@ describe('AnnexManager', () => {
     let annexManager;
     let getDocumentStub;
     beforeEach(() => {
-        annexManager = new AnnexManager(() => {}, () => {});
+        annexManager = new AnnexManager(() => {
+        }, () => {
+        });
         getDocumentStub = sinon.stub(utils, 'getDocument');
     });
 
@@ -135,7 +137,7 @@ describe('AnnexManager', () => {
             annexManager.renderAnnexSkillsSection = sinon.spy();
             getDocumentStub.returns(document);
             //action
-            annexManager.renderAnnex({annex: {skills: {}}});
+            annexManager.renderAnnex({annex: {title:'foo', skills: {}, publications: {}, misc: {}}});
             //assert
             assert.equal(annexManager.renderAnnexBigSection.calledTwice, true);
             assert.equal(annexManager.renderAnnexBigSection.getCall(0).args[1], ['publications']);
@@ -146,6 +148,31 @@ describe('AnnexManager', () => {
             assert.equal(annexManager.renderAnnexSkillsSection.getCall(1).args[1], ['architecture']);
             assert.equal(annexManager.renderAnnexSkillsSection.getCall(2).args[1], ['methodologies']);
             assert.equal(annexManager.renderAnnexSkillsSection.getCall(3).args[1], ['other']);
+        });
+
+        it('should not try to set the annex title if it is not defined (and not render anything in the annex if it is the case)', () => {
+            // setup
+            const document = {
+                getElementById: () => {
+                    return null;
+                }
+            };
+            const documentMock = sinon.mock(document);
+            const annexTitle = {innerText: 'title'}, annexSkillsTitle = {innerText: 'title2'};
+            documentMock.expects('getElementById').withExactArgs('annexTitle').once().returns(annexTitle);
+            documentMock.expects('getElementById').withExactArgs('skillsTitle').once().returns(annexSkillsTitle);
+            getDocumentStub.returns(document);
+            const skillsSectionStub = sinon.stub(annexManager, 'renderAnnexSkillsSection');
+            const bigSectionStub = sinon.stub(annexManager, 'renderAnnexBigSection');
+
+            // action
+            annexManager.renderAnnex({annex: {}});
+            // assert
+            documentMock.verify();
+            assert.equal(annexTitle.innerText, '');
+            assert.equal(annexSkillsTitle.innerText, '');
+            assert.equal(skillsSectionStub.called, false);
+            assert.equal(bigSectionStub.called, false);
         });
 
         it('should set annex titles of the section based on resumeData contents', () => {
@@ -171,7 +198,7 @@ describe('AnnexManager', () => {
             assert.equal(annexSkillsTitle.innerText, 'annex skills title');
         });
 
-        it('should not render annex section if noting to render', () => {
+        it('should not render annex section if annex property is not set', () => {
             //setup
             const document = {
                 getElementById: () => {
@@ -193,6 +220,74 @@ describe('AnnexManager', () => {
             documentMock.verify();
             assert.equal(annexTitle.innerText, '');
             assert.equal(annexSkillsTitle.innerText, '');
+        });
+
+        it('should not render skills section of annex if annex property has no skills listed', () => {
+            //setup
+            const document = {
+                getElementById: () => {
+                    return null;
+                }
+            };
+            const documentMock = sinon.mock(document);
+            const annexTitle = {innerText: 'title'};
+            sinon.stub(annexManager, 'renderAnnexSkillsSection');
+            sinon.stub(annexManager, 'renderAnnexBigSection');
+            documentMock.expects('getElementById').withExactArgs('annexTitle').once().returns(annexTitle);
+
+            getDocumentStub.returns(document);
+
+            //action
+            annexManager.renderAnnex({annex: {title:'foo'}});
+            //assert
+            documentMock.verify();
+            assert.equal(annexManager.renderAnnexSkillsSection.called, false);
+        });
+
+        it('should not render publications section of annex if annex property has no publications listed', () => {
+            //setup
+            const document = {
+                getElementById: () => {
+                    return null;
+                }
+            };
+            const documentMock = sinon.mock(document);
+            const annexTitle = {innerText: 'title'};
+            sinon.stub(annexManager, 'renderAnnexSkillsSection');
+            const renderBigSectionStub = sinon.stub(annexManager, 'renderAnnexBigSection');
+            documentMock.expects('getElementById').withExactArgs('annexTitle').once().returns(annexTitle);
+
+            getDocumentStub.returns(document);
+
+            //action
+            annexManager.renderAnnex({annex: {title:'foo', misc: {}}});
+            //assert
+            documentMock.verify();
+            assert.equal(renderBigSectionStub.calledOnce, true);
+            assert.deepEqual(renderBigSectionStub.getCall(0).args, [{annex: {title:'foo', misc: {}}}, 'misc']);
+        });
+
+        it('should not render misc section of annex if annex property has no misc listed', () => {
+            //setup
+            const document = {
+                getElementById: () => {
+                    return null;
+                }
+            };
+            const documentMock = sinon.mock(document);
+            const annexTitle = {innerText: 'title'};
+            const renderBigSectionStub = sinon.stub(annexManager, 'renderAnnexBigSection');
+            sinon.stub(annexManager, 'renderAnnexSkillsSection');
+            documentMock.expects('getElementById').withExactArgs('annexTitle').once().returns(annexTitle);
+
+            getDocumentStub.returns(document);
+
+            //action
+            annexManager.renderAnnex({annex: {title:'foo', publications: {}}});
+            //assert
+            documentMock.verify();
+            assert.equal(renderBigSectionStub.calledOnce, true);
+            assert.deepEqual(renderBigSectionStub.getCall(0).args, [{annex: {title:'foo', publications: {}}}, 'publications']);
         });
     });
 
