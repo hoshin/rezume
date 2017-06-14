@@ -11,7 +11,7 @@ describe('AcademicManager ', () => {
     });
 
     afterEach(() => {
-       utils.getDocument.restore();
+        utils.getDocument.restore();
     });
 
     describe('renderAcademic', () => {
@@ -125,5 +125,46 @@ describe('AcademicManager ', () => {
             assert.equal(academicContainer.innerHTML, '');
             documentMock.verify();
         });
+    });
+
+    it('should not display `- <year>` if not provided', () => {
+        // setup
+        const document = {
+            getElementById: () => {
+                throw new Error('mock not set up')
+            }, createElement: () => {
+                throw new Error('mock not set up')
+            }
+        };
+        const title = {innerText: ''};
+        const documentMock = sinon.mock(document);
+
+        const academicContainer = {appendChild: sinon.spy()};
+
+        documentMock.expects('getElementById').withArgs('academic').returns(academicContainer);
+        documentMock.expects('getElementById').withArgs('academicTitle').returns(title);
+
+        const firstParagraph = {appendChild: sinon.spy()};
+        const firstBold = {innertext: 'unchanged first'};
+        const firstSpan = {setAttribute: sinon.spy(), innerText: 'unchanged first'};
+
+        const createParagraphMockCall = documentMock.expects('createElement').withArgs('p').returns(academicContainer).twice();
+        createParagraphMockCall.onCall(0).returns(firstParagraph);
+        const createBoldMockCall = documentMock.expects('createElement').withArgs('b').returns(academicContainer).twice();
+        createBoldMockCall.onCall(0).returns(firstBold);
+        const createSpanMockCall = documentMock.expects('createElement').withArgs('span').returns(academicContainer).twice();
+        createSpanMockCall.onCall(0).returns(firstSpan);
+        getDocumentStub.returns(document);
+
+        // action
+        academicManager.renderAcademic({
+            academic: [{
+                show: true, first: 'item',
+                description: '1st item'
+            }]
+        });
+
+        // assert
+        assert.deepEqual(firstSpan.innerText, '1st item');
     });
 });

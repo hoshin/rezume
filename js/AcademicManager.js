@@ -20,7 +20,7 @@ class AcademicManager {
                 academicTitle.innerText = educationItem.title;
                 const academicDescription = document.createElement('span');
                 academicDescription.setAttribute('style', 'margin-left:10px;');
-                academicDescription.innerText = `${educationItem.description} - ${educationItem.year}`;
+                academicDescription.innerText = `${educationItem.description}${educationItem.year? ' - '+educationItem.year : ''}`;
                 academicItem.appendChild(academicTitle);
                 academicItem.appendChild(academicDescription);
                 academicContainer.appendChild(academicItem);
