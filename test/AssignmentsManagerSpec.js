@@ -301,5 +301,30 @@ describe('AssignmentsManager', () => {
             assert.equal(keywords.innerText, 'foo bar baz');
             documentMock.verify();
         });
+
+        it('should render an empty description if it isn\'t set', () => {
+            // setup
+            const assignment = {title: 'title', keywords: 'foo bar baz'};
+            const assignmentDescription = {setAttribute: sinon.spy(), appendChild: sinon.spy()};
+            const document = {
+                createElement: () => {
+                }
+            };
+            const documentMock = sinon.mock(document);
+            const descriptionTitle = {};
+            const descriptionParagraph = {};
+            const keywords = {setAttribute: sinon.spy()};
+            documentMock.expects('createElement').withExactArgs('div').returns(assignmentDescription);
+            documentMock.expects('createElement').withExactArgs('h2').returns(descriptionTitle);
+            const paragraphMock = documentMock.expects('createElement').withExactArgs('p').twice();
+            paragraphMock.onCall(0).returns(descriptionParagraph);
+            paragraphMock.onCall(1).returns(keywords);
+            getDocumentStub.returns(document);
+
+            // action
+            assignmentsManager.createAssignmentDescription(assignment, true);
+            // assert
+            assert.deepEqual(descriptionParagraph.innerHTML, '')
+        });
     });
 });

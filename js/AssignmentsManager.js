@@ -51,7 +51,7 @@ class AssignmentsManager {
         assignmentDescriptionTitle.innerText = assignment.title;
 
         const assignmentDescriptionParagraph = document.createElement('p');
-        assignmentDescriptionParagraph.innerHTML = assignment.shortDescription;
+        assignmentDescriptionParagraph.innerHTML = assignment.shortDescription || '';
 
         assignmentDescription.appendChild(assignmentDescriptionTitle);
         assignmentDescription.appendChild(assignmentDescriptionParagraph);
