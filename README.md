@@ -9,15 +9,18 @@ It also enables "quick fixes" (like rearranging assignments, adding / removing k
 
 # Features
 
+* Edit / visualize multiple versions of your resume on the same page
+* Mutualize "core data" like contact information
 * No special tools needed to edit / display / export to PDF
 * You can version your work and keep track of the modifications you did
 * You can switch on/off some features : 
     * Display "Relevant assignments" only / display all
     * Display keywords under assignments or not
-* You can insert html code into the assignments descriptions. I'd suggest keeping it short though =)
+* You can insert HTML code into the assignments descriptions. I'd suggest keeping it short though =)
 * Makes a nice header section w/ most relevant data (the basics + twitter / github)
 * Academic knowledge section lets you pick and mix what you want to show (aka, the "show" property on each academic knowledge entry)
 * You can edit all the titles of all the sections and subsections to fit your needs
+
 
 # How it works
 
@@ -68,6 +71,9 @@ window.onload = function () {
 * You can make a self contained resume if you cram everything in the same html file (well if you think you need to)
 * Anyone with a basic browser will be able to display that resume.
 * PDF export is a walk in the park from the browser.
+* It is a bit easier to manage multiple versions if you're into taylor-made resumes, as you can specify, from a single "assignments" file, 
+which assignments will be displayed in each version of your resume and how. It also allows you to keep the same contact 
+info everywhere and not have to worry about updating it multiple times.
 
 ## Drawbacks ?
 
