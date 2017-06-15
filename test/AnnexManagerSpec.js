@@ -65,58 +65,83 @@ describe('AnnexManager', () => {
         });
     });
 
-    describe('renderAnnexSkillsSection', () => {
-        it('should set the foobar skill section title text to the value in resumeData.annex.skills.foobar.title', () => {
-            //setup
-            const resumeData = {annex: {skills: {foobar: {title: 'foo'}}}};
+    describe('createDOMSkillSection', () => {
+        it('should create a skills div w/ appropriate structure & ids', () => {
             const document = {
                 getElementById: () => {
                     throw new Error('mock not set up')
+                },
+                createElement: () => {
+                    throw new Error('mock not set up')
                 }
             };
-            const getElementByIdMock = sinon.mock(document);
-            const foobarTitleElement = {innerText: 'notFoo'};
+            const documentMock = sinon.mock(document);
+            const resumeData = {annex: {skills: {foobar: {title: 'foo'}}}};
 
-            getElementByIdMock.expects('getElementById').withArgs('foobarSkillsList').once().returns(null);
-
-            getElementByIdMock.expects('getElementById').withArgs('foobarSkillsTitle').once().returns(foobarTitleElement);
+            const divAppendStub = sinon.stub();
+            const divSetClassStub = sinon.stub();
+            documentMock.expects('createElement').withArgs('div').once().returns({
+                append: divAppendStub,
+                setAttribute: divSetClassStub
+            });
+            const titleSetAttributeStub = sinon.stub();
+            documentMock.expects('createElement').withArgs('h2').once().returns({setAttribute: titleSetAttributeStub});
+            const listSetAttributeStub = sinon.stub();
+            documentMock.expects('createElement').withArgs('ul').once().returns({setAttribute: listSetAttributeStub});
             getDocumentStub.returns(document);
-
-            //action
-            annexManager.renderAnnexSkillsSection(resumeData, 'foobar');
-            //assert
-            assert.equal(foobarTitleElement.innerText, 'foo');
-            getElementByIdMock.verify();
+            // action
+            annexManager.createDOMSkillSection('foobar', resumeData);
+            // assert
+            documentMock.verify();
+            sinon.assert.calledWithExactly(divSetClassStub, 'class', 'bloc bloc-competence');
+            sinon.assert.calledWithExactly(titleSetAttributeStub, 'id', 'foobarSkillsTitle');
+            sinon.assert.calledWithExactly(listSetAttributeStub, 'id', 'foobarSkillsList');
+            assert.equal(divAppendStub.callCount, 2);
+            assert.deepEqual(divAppendStub.getCall(0).args[0].innerText, 'foo');
         });
+    });
 
-        it('should call appendItemsToDOMList with the correct section of the resumedata', () => {
-            //setup
+    describe('renderAnnexSkillsSection', () => {
+
+        it('should generate a new `bloc-competence` item and append it into the #skills section of the template', () => {
+            // setup
             const document = {
                 getElementById: () => {
-                    return {some: 'element'}
-                }, createElement: () => {
+                    throw new Error('mock not set up')
+                },
+                createElement: () => {
+                    throw new Error('mock not set up')
                 }
             };
-            const appendItemsToDOMListStub = sinon.stub(annexManager, 'appendItemsToDOMList').returns();
+            const documentMock = sinon.mock(document);
+            const resumeData = {annex: {skills: {foobar: {title: 'foo', list: [1, 2, 3, 42]}}}};
+            sinon.stub(annexManager, 'appendItemsToDOMList');
+            sinon.stub(annexManager, 'createDOMSkillSection').returns({
+                skillsSectionListDOM: {foo: 'bar'},
+                skillSectionDOM: {bar: 'baz'}
+            });
+            const skillsAppendStub = sinon.stub();
+            documentMock.expects('getElementById').withArgs('skills').once().returns({append: skillsAppendStub});
 
-            const resumeData = {
+            getDocumentStub.returns(document);
+            // action
+            annexManager.renderAnnexSkillsSection(resumeData, 'foobar');
+            // assert
+            assert.equal(annexManager.appendItemsToDOMList.calledOnce, true);
+            assert.deepEqual(annexManager.appendItemsToDOMList.getCall(0).args, [[1, 2, 3, 42], {foo: 'bar'}]);
+            assert.equal(annexManager.createDOMSkillSection.calledOnce, true);
+            assert.deepEqual(annexManager.createDOMSkillSection.getCall(0).args, ['foobar', {
                 annex: {
                     skills: {
-                        baz: {list: ['not the right list']},
-                        foobar: {list: ['foobar item']}
+                        foobar: {
+                            title: 'foo',
+                            list: [1, 2, 3, 42]
+                        }
                     }
                 }
-            };
-            getDocumentStub.returns(document);
-
-            //action
-            annexManager.renderAnnexSkillsSection(resumeData, 'foobar');
-            //assert
-            assert.equal(appendItemsToDOMListStub.calledOnce, true);
-            assert.deepEqual(appendItemsToDOMListStub.getCall(0).args, [['foobar item'], {
-                innerHTML: '',
-                some: 'element'
             }]);
+            assert.equal(skillsAppendStub.calledOnce, true);
+            assert.deepEqual(skillsAppendStub.getCall(0).args[0], {bar: 'baz'})
         });
     });
 
@@ -132,22 +157,127 @@ describe('AnnexManager', () => {
 
             documentMock.expects('getElementById').withExactArgs('annexTitle').once().returns({});
             documentMock.expects('getElementById').withExactArgs('skillsTitle').once().returns({});
-
+            sinon.stub(annexManager, 'addSkillsDivider');
             annexManager.renderAnnexBigSection = sinon.spy();
             annexManager.renderAnnexSkillsSection = sinon.spy();
             getDocumentStub.returns(document);
             //action
-            annexManager.renderAnnex({annex: {title:'foo', skills: {}, publications: {}, misc: {}}});
+            annexManager.renderAnnex({
+                annex: {
+                    title: 'foo',
+                    skills: {tech: {}, architecture: {}},
+                    publications: {},
+                    misc: {}
+                }
+            });
             //assert
             assert.equal(annexManager.renderAnnexBigSection.calledTwice, true);
             assert.equal(annexManager.renderAnnexBigSection.getCall(0).args[1], ['publications']);
             assert.equal(annexManager.renderAnnexBigSection.getCall(1).args[1], ['misc']);
 
-            assert.equal(annexManager.renderAnnexSkillsSection.callCount, 4);
+            assert.equal(annexManager.renderAnnexSkillsSection.callCount, 2);
             assert.equal(annexManager.renderAnnexSkillsSection.getCall(0).args[1], ['tech']);
             assert.equal(annexManager.renderAnnexSkillsSection.getCall(1).args[1], ['architecture']);
-            assert.equal(annexManager.renderAnnexSkillsSection.getCall(2).args[1], ['methodologies']);
-            assert.equal(annexManager.renderAnnexSkillsSection.getCall(3).args[1], ['other']);
+        });
+
+        it('should handle the absence of skill sections', () => {
+            //setup
+            const document = {
+                getElementById: () => {
+                    return null;
+                }
+            };
+            const documentMock = sinon.mock(document);
+
+            documentMock.expects('getElementById').withExactArgs('annexTitle').once().returns({});
+            documentMock.expects('getElementById').withExactArgs('skillsTitle').once().returns({});
+
+            annexManager.renderAnnexBigSection = sinon.spy();
+            annexManager.renderAnnexSkillsSection = sinon.spy();
+            getDocumentStub.returns(document);
+            //action
+            annexManager.renderAnnex({annex: {title: 'foo', skills: {}}});
+            //assert
+            assert.equal(annexManager.renderAnnexSkillsSection.called, false);
+        });
+
+        it('should add a divider after every other skills section (1 section => 0 divider)', () => {
+            //setup
+            const document = {
+                getElementById: () => {
+                    return null;
+                }
+            };
+            const documentMock = sinon.mock(document);
+
+            documentMock.expects('getElementById').withExactArgs('annexTitle').once().returns({});
+            documentMock.expects('getElementById').withExactArgs('skillsTitle').once().returns({});
+            sinon.stub(annexManager, 'addSkillsDivider');
+            sinon.stub(annexManager, 'renderAnnexSkillsSection');
+
+            getDocumentStub.returns(document);
+            //action
+            annexManager.renderAnnex({
+                annex: {
+                    title: 'foo',
+                    skills: {foo: {}}
+                }
+            });
+            //assert
+            assert.equal(annexManager.addSkillsDivider.called, false);
+        });
+
+        it('should not add a divider after the last inserted skills section (2 sections => 0 divider)', () => {
+            //setup
+            const document = {
+                getElementById: () => {
+                    return null;
+                }
+            };
+            const documentMock = sinon.mock(document);
+
+            documentMock.expects('getElementById').withExactArgs('annexTitle').once().returns({});
+            documentMock.expects('getElementById').withExactArgs('skillsTitle').once().returns({});
+            sinon.stub(annexManager, 'addSkillsDivider');
+            sinon.stub(annexManager, 'renderAnnexSkillsSection');
+
+            getDocumentStub.returns(document);
+            //action
+            annexManager.renderAnnex({
+                annex: {
+                    title: 'foo',
+                    skills: {foo: {}, bar:{}}
+                }
+            });
+            //assert
+            assert.equal(annexManager.addSkillsDivider.called, false);
+        });
+
+        it('should add a divider after every other skills section (3 sections => 1 divider)', () => {
+            //setup
+            const document = {
+                getElementById: () => {
+                    return null;
+                }
+            };
+            const documentMock = sinon.mock(document);
+
+            documentMock.expects('getElementById').withExactArgs('annexTitle').once().returns({});
+            documentMock.expects('getElementById').withExactArgs('skillsTitle').once().returns({});
+            sinon.stub(annexManager, 'addSkillsDivider');
+            sinon.stub(annexManager, 'renderAnnexSkillsSection');
+
+            getDocumentStub.returns(document);
+            //action
+            annexManager.renderAnnex({
+                annex: {
+                    title: 'foo',
+                    skills: {foo: {}, bar: {}, baz: {}}
+                }
+            });
+            //assert
+            assert.equal(annexManager.renderAnnexSkillsSection.calledThrice, true);
+            assert.equal(annexManager.addSkillsDivider.calledOnce, true);
         });
 
         it('should not try to set the annex title if it is not defined (and not render anything in the annex if it is the case)', () => {
@@ -238,7 +368,7 @@ describe('AnnexManager', () => {
             getDocumentStub.returns(document);
 
             //action
-            annexManager.renderAnnex({annex: {title:'foo'}});
+            annexManager.renderAnnex({annex: {title: 'foo'}});
             //assert
             documentMock.verify();
             assert.equal(annexManager.renderAnnexSkillsSection.called, false);
@@ -260,11 +390,11 @@ describe('AnnexManager', () => {
             getDocumentStub.returns(document);
 
             //action
-            annexManager.renderAnnex({annex: {title:'foo', misc: {}}});
+            annexManager.renderAnnex({annex: {title: 'foo', misc: {}}});
             //assert
             documentMock.verify();
             assert.equal(renderBigSectionStub.calledOnce, true);
-            assert.deepEqual(renderBigSectionStub.getCall(0).args, [{annex: {title:'foo', misc: {}}}, 'misc']);
+            assert.deepEqual(renderBigSectionStub.getCall(0).args, [{annex: {title: 'foo', misc: {}}}, 'misc']);
         });
 
         it('should not render misc section of annex if annex property has no misc listed', () => {
@@ -283,11 +413,56 @@ describe('AnnexManager', () => {
             getDocumentStub.returns(document);
 
             //action
-            annexManager.renderAnnex({annex: {title:'foo', publications: {}}});
+            annexManager.renderAnnex({annex: {title: 'foo', publications: {}}});
             //assert
             documentMock.verify();
             assert.equal(renderBigSectionStub.calledOnce, true);
-            assert.deepEqual(renderBigSectionStub.getCall(0).args, [{annex: {title:'foo', publications: {}}}, 'publications']);
+            assert.deepEqual(renderBigSectionStub.getCall(0).args, [{
+                annex: {
+                    title: 'foo',
+                    publications: {}
+                }
+            }, 'publications']);
+        });
+
+        it('should render as many skills sections as configured', () => {
+            // setup
+            const renderAnnexSkillsSectionStub = sinon.stub(annexManager, 'renderAnnexSkillsSection');
+            const resumeData = {
+                annex: {
+                    title: 'annex title',
+                    skills: {
+                        title: 'should not try to render this',
+                        one: {title: 'one title'},
+                        two: {title: 'two title'},
+                        three: {title: 'three title'},
+                        four: {title: 'four title'},
+                        five: {title: 'five title'}
+                    }
+                }
+            };
+            const document = {
+                getElementById: () => {
+                    return null;
+                }
+            };
+            sinon.stub(annexManager, 'addSkillsDivider');
+
+            const documentMock = sinon.mock(document);
+            const annexTitle = {innerText: 'title'}, skillsTitle = {innerText: 'skills'};
+            documentMock.expects('getElementById').withExactArgs('annexTitle').once().returns(annexTitle);
+            documentMock.expects('getElementById').withExactArgs('skillsTitle').once().returns(skillsTitle);
+            getDocumentStub.returns(document);
+
+            // action
+            annexManager.renderAnnex(resumeData);
+            // assert
+            assert.equal(renderAnnexSkillsSectionStub.callCount, 5);
+            assert.equal(renderAnnexSkillsSectionStub.getCall(0).args[1], 'one');
+            assert.equal(renderAnnexSkillsSectionStub.getCall(1).args[1], 'two');
+            assert.equal(renderAnnexSkillsSectionStub.getCall(2).args[1], 'three');
+            assert.equal(renderAnnexSkillsSectionStub.getCall(3).args[1], 'four');
+            assert.equal(renderAnnexSkillsSectionStub.getCall(4).args[1], 'five');
         });
     });
 

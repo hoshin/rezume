@@ -24,6 +24,7 @@
             resume.render();
         } catch (err) {
             document.getElementsByClassName('cv')[0].innerHTML = '';
+            console.error(err);
             alert(err.message);
         }
     };
@@ -93,32 +94,9 @@
         <section>
             <h1 id="annexTitle"></h1>
 
-            <section>
+            <section id="skills">
                 <h2 id="skillsTitle" style="font-weight:bold"></h2>
 
-                <div class="bloc bloc-competence">
-                    <h2 id="techSkillsTitle"></h2>
-                    <ul id="techSkillsList">
-
-                    </ul>
-                </div>
-                <div class="bloc bloc-competence">
-                    <h2 id="architectureSkillsTitle"></h2>
-                    <ul id="architectureSkillsList">
-                    </ul>
-                </div>
-                <div class="divider"></div>
-                <div class="bloc bloc-competence">
-                    <h2 id="methodologiesSkillsTitle"></h2>
-                    <ul id="methodologiesSkillsList">
-
-                    </ul>
-                </div>
-                <div class="bloc bloc-competence">
-                    <h2 id="otherSkillsTitle"></h2>
-                    <ul id="otherSkillsList">
-                    </ul>
-                </div>
             </section>
             <section>
                 <h2 id="publicationsTitle" style="font-weight:bold"></h2>

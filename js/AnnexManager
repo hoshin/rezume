@@ -13,10 +13,13 @@ class AnnexManager {
         document.getElementById('annexTitle').innerText = annexData.title;
         if(annexData.skills){
             document.getElementById('skillsTitle').innerText = annexData.skills.title;
-            this.renderAnnexSkillsSection(resumeData, 'tech');
-            this.renderAnnexSkillsSection(resumeData, 'architecture');
-            this.renderAnnexSkillsSection(resumeData, 'methodologies');
-            this.renderAnnexSkillsSection(resumeData, 'other');
+            const skillSectionsToRender = Object.keys(annexData.skills).filter(skill => skill !== 'title');
+            skillSectionsToRender.forEach((skillSectionToRender, index) => {
+                this.renderAnnexSkillsSection(resumeData, skillSectionToRender);
+                if(index%2 === 1 && index+1 < skillSectionsToRender.length){
+                    this.addSkillsDivider(document);
+                }
+            });
         }
         if(annexData.publications){
             this.renderAnnexBigSection(resumeData, 'publications');
@@ -24,6 +27,13 @@ class AnnexManager {
         if(annexData.misc){
             this.renderAnnexBigSection(resumeData, 'misc');
         }
+    }
+
+    addSkillsDivider(document) {
+        const skillsSectionDOM = document.getElementById('skills');
+        const separator = document.createElement('div');
+        separator.setAttribute('class', 'divider');
+        skillsSectionDOM.append(separator);
     }
 
     renderAnnexBigSection(resumeData, sectionName) {
@@ -39,13 +49,29 @@ class AnnexManager {
 
     renderAnnexSkillsSection(resumeData, skillSectionName) {
         const document = utils.getDocument();
-        document.getElementById(skillSectionName + 'SkillsTitle').innerText = resumeData.annex.skills[skillSectionName].title;
-        const otherSkillsList = document.getElementById(skillSectionName + 'SkillsList');
+        const {skillSectionDOM, skillsSectionListDOM} = this.createDOMSkillSection(skillSectionName, resumeData);
 
-        if (otherSkillsList) {
-            otherSkillsList.innerHTML = '';
-            this.appendItemsToDOMList(resumeData.annex.skills[skillSectionName].list, otherSkillsList);
-        }
+        this.appendItemsToDOMList(resumeData.annex.skills[skillSectionName].list, skillsSectionListDOM);
+        document.getElementById('skills').append(skillSectionDOM)
+    }
+
+    createDOMSkillSection(skillSectionName, resumeData) {
+        const document = utils.getDocument();
+
+        const skillSectionDOM = document.createElement('div');
+        skillSectionDOM.setAttribute('class', 'bloc bloc-competence');
+
+        const skillsSectionTitleDOM = document.createElement('h2');
+        skillsSectionTitleDOM.setAttribute('id', `${skillSectionName}SkillsTitle`);
+        skillsSectionTitleDOM.innerText = resumeData.annex.skills[skillSectionName].title;
+
+        const skillsSectionListDOM = document.createElement('ul');
+        skillsSectionListDOM.setAttribute('id', `${skillSectionName}SkillsList`);
+        skillsSectionListDOM.innerHTML = '';
+
+        skillSectionDOM.append(skillsSectionTitleDOM);
+        skillSectionDOM.append(skillsSectionListDOM);
+        return {skillSectionDOM, skillsSectionListDOM};
     }
 
     appendItemsToDOMList(skillsFromResumeData, DOMElementToAppendTo) {
