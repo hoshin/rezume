@@ -121,7 +121,7 @@ describe('AnnexManager', () => {
                 skillSectionDOM: {bar: 'baz'}
             });
             const skillsAppendStub = sinon.stub();
-            documentMock.expects('getElementById').withArgs('skills').once().returns({append: skillsAppendStub});
+            documentMock.expects('getElementById').withArgs('skillsContent').once().returns({append: skillsAppendStub});
 
             getDocumentStub.returns(document);
             // action
@@ -146,6 +146,38 @@ describe('AnnexManager', () => {
     });
 
     describe('renderAnnex', () => {
+
+        it('should reset the skills annex name & contents', () => {
+            // setup
+            const skillsTitle = {innerText: 'some text'}, skillsContent = {innerHTML: 'some HTML'};
+            const document = {
+                getElementById: () => {
+                    return null;
+                }
+            };
+            const documentMock = sinon.mock(document);
+            documentMock.expects('getElementById').withExactArgs('annexTitle').once().returns({});
+            documentMock.expects('getElementById').withExactArgs('skillsTitle').once().returns(skillsTitle);
+            documentMock.expects('getElementById').withExactArgs('skillsContent').once().returns(skillsContent);
+            getDocumentStub.returns(document);
+            annexManager.renderAnnexBigSection = sinon.spy();
+            annexManager.renderAnnexSkillsSection = sinon.spy();
+
+            // action
+            annexManager.renderAnnex({
+                annex: {
+                    title: 'foo',
+                    skills: {
+                        title:'bar'
+                    }
+                }
+            });
+            // assert
+            documentMock.verify();
+            assert.equal(skillsTitle.innerText, 'bar');
+            assert.equal(skillsContent.innerHTML, '');
+        });
+
         it('should trigger the rendering of all annex sections', () => {
             //setup
             const document = {
@@ -157,6 +189,7 @@ describe('AnnexManager', () => {
 
             documentMock.expects('getElementById').withExactArgs('annexTitle').once().returns({});
             documentMock.expects('getElementById').withExactArgs('skillsTitle').once().returns({});
+            documentMock.expects('getElementById').withExactArgs('skillsContent').once().returns({});
             sinon.stub(annexManager, 'addSkillsDivider');
             annexManager.renderAnnexBigSection = sinon.spy();
             annexManager.renderAnnexSkillsSection = sinon.spy();
@@ -191,6 +224,7 @@ describe('AnnexManager', () => {
 
             documentMock.expects('getElementById').withExactArgs('annexTitle').once().returns({});
             documentMock.expects('getElementById').withExactArgs('skillsTitle').once().returns({});
+            documentMock.expects('getElementById').withExactArgs('skillsContent').once().returns({});
 
             annexManager.renderAnnexBigSection = sinon.spy();
             annexManager.renderAnnexSkillsSection = sinon.spy();
@@ -212,6 +246,8 @@ describe('AnnexManager', () => {
 
             documentMock.expects('getElementById').withExactArgs('annexTitle').once().returns({});
             documentMock.expects('getElementById').withExactArgs('skillsTitle').once().returns({});
+            documentMock.expects('getElementById').withExactArgs('skillsContent').once().returns({});
+
             sinon.stub(annexManager, 'addSkillsDivider');
             sinon.stub(annexManager, 'renderAnnexSkillsSection');
 
@@ -238,6 +274,8 @@ describe('AnnexManager', () => {
 
             documentMock.expects('getElementById').withExactArgs('annexTitle').once().returns({});
             documentMock.expects('getElementById').withExactArgs('skillsTitle').once().returns({});
+            documentMock.expects('getElementById').withExactArgs('skillsContent').once().returns({});
+
             sinon.stub(annexManager, 'addSkillsDivider');
             sinon.stub(annexManager, 'renderAnnexSkillsSection');
 
@@ -246,7 +284,7 @@ describe('AnnexManager', () => {
             annexManager.renderAnnex({
                 annex: {
                     title: 'foo',
-                    skills: {foo: {}, bar:{}}
+                    skills: {foo: {}, bar: {}}
                 }
             });
             //assert
@@ -264,6 +302,8 @@ describe('AnnexManager', () => {
 
             documentMock.expects('getElementById').withExactArgs('annexTitle').once().returns({});
             documentMock.expects('getElementById').withExactArgs('skillsTitle').once().returns({});
+            documentMock.expects('getElementById').withExactArgs('skillsContent').once().returns({});
+
             sinon.stub(annexManager, 'addSkillsDivider');
             sinon.stub(annexManager, 'renderAnnexSkillsSection');
 
@@ -316,6 +356,7 @@ describe('AnnexManager', () => {
             const annexTitle = {}, annexSkillsTitle = {};
             documentMock.expects('getElementById').withExactArgs('annexTitle').once().returns(annexTitle);
             documentMock.expects('getElementById').withExactArgs('skillsTitle').once().returns(annexSkillsTitle);
+            documentMock.expects('getElementById').withExactArgs('skillsContent').once().returns({});
 
             annexManager.renderAnnexBigSection = sinon.spy();
             annexManager.renderAnnexSkillsSection = sinon.spy();
@@ -452,6 +493,8 @@ describe('AnnexManager', () => {
             const annexTitle = {innerText: 'title'}, skillsTitle = {innerText: 'skills'};
             documentMock.expects('getElementById').withExactArgs('annexTitle').once().returns(annexTitle);
             documentMock.expects('getElementById').withExactArgs('skillsTitle').once().returns(skillsTitle);
+            documentMock.expects('getElementById').withExactArgs('skillsContent').once().returns({});
+
             getDocumentStub.returns(document);
 
             // action

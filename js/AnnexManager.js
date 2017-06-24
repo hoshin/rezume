@@ -13,6 +13,7 @@ class AnnexManager {
         document.getElementById('annexTitle').innerText = annexData.title;
         if(annexData.skills){
             document.getElementById('skillsTitle').innerText = annexData.skills.title;
+            document.getElementById('skillsContent').innerHTML = '';
             const skillSectionsToRender = Object.keys(annexData.skills).filter(skill => skill !== 'title');
             skillSectionsToRender.forEach((skillSectionToRender, index) => {
                 this.renderAnnexSkillsSection(resumeData, skillSectionToRender);
@@ -30,7 +31,7 @@ class AnnexManager {
     }
 
     addSkillsDivider(document) {
-        const skillsSectionDOM = document.getElementById('skills');
+        const skillsSectionDOM = document.getElementById('skillsContent');
         const separator = document.createElement('div');
         separator.setAttribute('class', 'divider');
         skillsSectionDOM.append(separator);
@@ -52,7 +53,7 @@ class AnnexManager {
         const {skillSectionDOM, skillsSectionListDOM} = this.createDOMSkillSection(skillSectionName, resumeData);
 
         this.appendItemsToDOMList(resumeData.annex.skills[skillSectionName].list, skillsSectionListDOM);
-        document.getElementById('skills').append(skillSectionDOM)
+        document.getElementById('skillsContent').append(skillSectionDOM)
     }
 
     createDOMSkillSection(skillSectionName, resumeData) {
