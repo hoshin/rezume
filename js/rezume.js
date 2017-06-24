@@ -36,7 +36,7 @@ class Rezume {
         const selectorValue = currentDocument.getElementById('cv_selector').value;
         this.assignments = this.assignmentsList[selectorValue];
         this.assignmentsManager.updateAssignmentsData(this.assignments);
-        this.headersManager.updateHeadersData(this.assignments.expectedHeaders);
+        //this.headersManager.updateHeadersData(this.assignments.expectedHeaders);
         this.resumeData = _.merge({}, this._originalResumeData, this.assignmentsList[selectorValue].resumeData);
         this.headersManager.updateHeadersData(this.assignments.expectedHeaders, this.resumeData);
         this.render(currentDocument);
