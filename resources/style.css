@@ -164,3 +164,13 @@ li li:before {
 .headerData {
     display:none;
 }
+
+footer {
+    width:100%;
+}
+
+footer p {
+    text-align: right;
+    font-style: italic;
+    font-size: smaller;
+}
